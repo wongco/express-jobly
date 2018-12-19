@@ -2,12 +2,16 @@
 
 const express = require('express');
 const app = express();
-app.use(express.json()); // middleware to parse json
+app.use(express.json()); // middleware to parse json, so express can read json
 
 // add logging system
 
 const morgan = require('morgan');
 app.use(morgan('tiny'));
+
+// import routes
+const companiesRoutes = require('./routes/companies');
+app.use('/companies', companiesRoutes);
 
 /** 404 handler */
 
