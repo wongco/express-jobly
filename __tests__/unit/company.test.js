@@ -146,6 +146,7 @@ describe('deleteCompany method', async () => {
   it('deletes a company successfully', async () => {
     const company = await Company.deleteCompany('google');
     expect(company).toHaveProperty('handle', 'google');
+    // db
   });
 
   it('fails when company does not exist', async () => {

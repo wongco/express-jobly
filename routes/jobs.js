@@ -6,10 +6,21 @@ const APIError = require('../models/ApiError');
 router.post('/', async (req, res, next) => {
   // use the create job method to here
   try {
-    const job = Job.addAJob(req.body);
+    const job = await Job.addJob(req.body);
     return res.json({ job });
   } catch (error) {
     return next(error);
   }
 });
+
+router.get('/', async (req, res, next) => {
+  // use the create job method to here
+  try {
+    const jobs = await Job.getJobs(req.query);
+    return res.json({ jobs });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 module.exports = router;
