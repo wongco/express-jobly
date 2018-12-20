@@ -2,7 +2,7 @@ const express = require('express');
 const router = new express.Router();
 const Company = require('../models/Company');
 
-/** GET / - get detail of companies
+/** GET /companies - get detail of companies
  * query parameters (optional):
  * {
  *   search,
@@ -14,14 +14,14 @@ const Company = require('../models/Company');
  **/
 router.get('/', async (req, res, next) => {
   try {
-    const companies = await Company.getCompany(req.query);
+    const companies = await Company.getCompanies(req.query);
     return res.json({ companies });
   } catch (err) {
     return next(err);
   }
 });
 
-/** POST / - get detail of companies
+/** POST /companies - get detail of companies
  * post body parameters (employees, desc, logo_url optional):
  {
    "handle": "apple",
@@ -36,6 +36,21 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const company = await Company.addCompany(req.body);
+    return res.json({ company });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** GET /companies/:handle - get detail of companies
+ *
+ *
+ * => {company: {companyData}}
+ **/
+router.get('/:handle', async (req, res, next) => {
+  try {
+    const search = req.params.handle;
+    const company = await Company.getCompany(search);
     return res.json({ company });
   } catch (err) {
     return next(err);

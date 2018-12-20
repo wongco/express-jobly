@@ -19,9 +19,9 @@ beforeEach(async () => {
   );
 });
 
-describe('testing getCompany function', async () => {
+describe('testing getCompanies function', async () => {
   it('should give us specific company success', async () => {
-    const companies = await Company.getCompany({
+    const companies = await Company.getCompanies({
       search: 'roni',
       min_employees: 1,
       max_employees: 10
@@ -32,13 +32,13 @@ describe('testing getCompany function', async () => {
   });
 
   it('should give us all the companies in database', async () => {
-    const companies = await Company.getCompany({});
+    const companies = await Company.getCompanies({});
     expect(companies).toHaveLength(2);
   });
 
   it('should fail with 404 when min > max', async () => {
     try {
-      const companies = await Company.getCompany({
+      const companies = await Company.getCompanies({
         search: 'roni',
         min_employees: 30,
         max_employees: 10
@@ -50,7 +50,7 @@ describe('testing getCompany function', async () => {
   });
 
   it('should return nothing based on critera', async () => {
-    const companies = await Company.getCompany({
+    const companies = await Company.getCompanies({
       search: 'uber'
     });
     expect(companies).toHaveLength(0);

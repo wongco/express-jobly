@@ -3,7 +3,7 @@ const db = require('../db');
 const APIError = require('./ApiError');
 
 class Company {
-  /** getCompany -- retreive companies details
+  /** getCompanies -- retreive companies details
    *
     [{
       "handle": "apple",
@@ -13,26 +13,26 @@ class Company {
       "logo_url": null
     }]
    */
-  static async getCompany(reqQuery) {
+  static async getCompanies(companyParams) {
     // { search, min_employees, max_employees }
-    for (let key in reqQuery) {
-      if (!reqQuery[key]) {
-        delete reqQuery[key];
+    for (let key in companyParams) {
+      if (!companyParams[key]) {
+        delete companyParams[key];
       }
     }
     let queryString = 'SELECT * FROM companies';
-    const reqQueryArray = Object.keys(reqQuery);
+    const compParamsQueryArray = Object.keys(companyParams);
     const values = [];
     let counter = 1;
 
-    if (reqQueryArray.length > 0) {
+    if (compParamsQueryArray.length > 0) {
       queryString += ' WHERE';
 
       if (
-        reqQuery.hasOwnProperty('min_employees') &&
-        reqQuery.hasOwnProperty('min_employees')
+        companyParams.hasOwnProperty('min_employees') &&
+        companyParams.hasOwnProperty('min_employees')
       ) {
-        if (reqQuery.min_employees > reqQuery.max_employees) {
+        if (companyParams.min_employees > companyParams.max_employees) {
           const err = new Error('the parameters are incorrect');
           err.status = 404;
           throw err;
@@ -40,19 +40,19 @@ class Company {
       }
 
       const dynamicArr = [];
-      if (reqQuery.hasOwnProperty('search')) {
+      if (companyParams.hasOwnProperty('search')) {
         dynamicArr.push(` handle LIKE $${counter}`);
-        values.push(reqQuery.search);
+        values.push(companyParams.search);
         counter++;
       }
-      if (reqQuery.hasOwnProperty('min_employees')) {
+      if (companyParams.hasOwnProperty('min_employees')) {
         dynamicArr.push(` num_employees > $${counter}`);
-        values.push(reqQuery.min_employees);
+        values.push(companyParams.min_employees);
         counter++;
       }
-      if (reqQuery.hasOwnProperty('max_employees')) {
+      if (companyParams.hasOwnProperty('max_employees')) {
         dynamicArr.push(` num_employees < $${counter}`);
-        values.push(reqQuery.max_employees);
+        values.push(companyParams.max_employees);
         counter++;
       }
       queryString += dynamicArr.join(' AND');
@@ -89,6 +89,28 @@ class Company {
       err.status = 422;
       throw err;
     }
+  }
+
+  /** getCompany -- get specific company
+   * Sample companyData Input
+   * => {
+      handle: 'roni',
+      name: 'Roni, Inc.',
+      num_employees: 50,
+      description: 'Amazing Cooking',
+      logo_url: 'https://www.amazingcooking.com/logo.png'
+    }
+   */
+  static async getCompany(handle) {
+    const company = await db.query(
+      `SELECT * FROM companies where handle = $1`,
+      [handle]
+    );
+
+    if (company.rows.length === 0) {
+      throw new APIError('Company not found', 404);
+    }
+    return company.rows[0];
   }
 }
 
