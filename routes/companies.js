@@ -2,13 +2,44 @@ const express = require('express');
 const router = new express.Router();
 const Company = require('../models/Company');
 
-/** default get on route */
+/** GET / - get detail of companies
+ * query parameters (optional):
+ * {
+ *   search,
+ *   min_employees,
+ *   max_employees
+ * }
+ *
+ * => {companies: [companyData, ...]}
+ **/
 router.get('/', async (req, res, next) => {
-  //get the query obj
-  // const { search, min_employees, max_employees } = req.query;
-  // Company.getCompany going to handle everything in the model
-  const results = await Company.getCompany(req.query);
-  res.json(results);
+  try {
+    const companies = await Company.getCompany(req.query);
+    return res.json({ companies });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** POST / - get detail of companies
+ * post body parameters (employees, desc, logo_url optional):
+ {
+   "handle": "apple",
+   "name": "Apple Inc",
+   "num_employees": 300,
+   "description": "Amazing Cooking",
+   "logo_url": "https://www.amazingcooking.com/logo.png"
+ }
+ *
+ * => {company: {companyData}}
+ **/
+router.post('/', async (req, res, next) => {
+  try {
+    const company = await Company.addCompany(req.body);
+    return res.json({ company });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 // exports router for app.js use
