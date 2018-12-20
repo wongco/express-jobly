@@ -102,8 +102,7 @@ describe('POST /companies', () => {
       });
 
     const { error } = response.body;
-    expect(error.status).toBe(500);
-    expect(error.message).toEqual('Server error occured.');
+    expect(error.status).toBe(409);
   });
 
   it('Adding a company failed because missing params', async () => {

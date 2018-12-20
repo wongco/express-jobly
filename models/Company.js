@@ -4,7 +4,12 @@ const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
   /** getCompanies -- retreive companies details
-   *
+   input: from request body {
+     search,
+     min_employees,
+     max_employees 
+   }
+   output: =>
     [{
       "handle": "apple",
       "name": "Apple Inc",
@@ -14,7 +19,6 @@ class Company {
     }]
    */
   static async getCompanies(companyParams) {
-    // { search, min_employees, max_employees }
     for (let key in companyParams) {
       if (!companyParams[key]) {
         delete companyParams[key];
@@ -29,27 +33,24 @@ class Company {
       queryString += ' WHERE';
 
       // if min_employees & max_employees keys exist, make sure min < max
-      if (
-        companyParams.hasOwnProperty('min_employees') &&
-        companyParams.hasOwnProperty('min_employees')
-      ) {
+      if (companyParams.min_employees && companyParams.min_employees) {
         if (companyParams.min_employees > companyParams.max_employees) {
           throw new Error('Check that your parameters are correct.');
         }
       }
 
       const dynamicArr = [];
-      if (companyParams.hasOwnProperty('search')) {
+      if (companyParams.search) {
         dynamicArr.push(` handle LIKE $${counter}`);
         values.push(companyParams.search);
         counter++;
       }
-      if (companyParams.hasOwnProperty('min_employees')) {
+      if (companyParams.min_employees) {
         dynamicArr.push(` num_employees > $${counter}`);
         values.push(companyParams.min_employees);
         counter++;
       }
-      if (companyParams.hasOwnProperty('max_employees')) {
+      if (companyParams.max_employees) {
         dynamicArr.push(` num_employees < $${counter}`);
         values.push(companyParams.max_employees);
         counter++;
@@ -62,7 +63,7 @@ class Company {
   }
 
   /** addCompany -- add new company
-   * Sample companyData Input
+  input: 
     {
       handle: 'roni',
       name: 'Roni, Inc.',
