@@ -1,9 +1,10 @@
 const express = require('express');
 const router = new express.Router();
 const Company = require('../models/Company');
+const APIError = require('../models/ApiError');
 
 /** GET /companies - get detail of companies
- * query parameters (optional):
+ * request query input parameters (optional):
  * {
  *   search,
  *   min_employees,
@@ -17,12 +18,13 @@ router.get('/', async (req, res, next) => {
     const companies = await Company.getCompanies(req.query);
     return res.json({ companies });
   } catch (err) {
-    return next(err);
+    const error = Error('Server error occured.');
+    return next(error);
   }
 });
 
-/** POST /companies - get detail of companies
- * post body parameters (employees, desc, logo_url optional):
+/** POST /companies - add company
+ * request body input parameters (employees, desc, logo_url optional):
  {
    "handle": "apple",
    "name": "Apple Inc",
@@ -38,22 +40,54 @@ router.post('/', async (req, res, next) => {
     const company = await Company.addCompany(req.body);
     return res.json({ company });
   } catch (err) {
-    return next(err);
+    const error = Error('Server error occured.');
+    return next(error);
   }
 });
 
 /** GET /companies/:handle - get detail of companies
  *
- *
  * => {company: {companyData}}
  **/
 router.get('/:handle', async (req, res, next) => {
   try {
-    const search = req.params.handle;
-    const company = await Company.getCompany(search);
+    const handle = req.params.handle;
+    const company = await Company.getCompany(handle);
     return res.json({ company });
   } catch (err) {
-    return next(err);
+    let error;
+    if (err.message === 'Company not found.') {
+      error = new APIError(err.message, 404);
+    } else {
+      error = Error('Server error occured.');
+    }
+    return next(error);
+  }
+});
+
+/** PATCH /companies/:handle - update details of companies
+ request body input:
+ {
+   "name": "Apple Inc",
+   "num_employees": 300,
+   "description": "Amazing Cooking",
+   "logo_url": "https://www.amazingcooking.com/logo.png"
+ }
+ output: => {company: {companyData}}
+ **/
+router.patch('/:handle', async (req, res, next) => {
+  try {
+    const handle = req.params.handle;
+    const company = await Company.patchCompany(handle, req.body);
+    return res.json({ company });
+  } catch (err) {
+    let error;
+    if (err.message === 'Company not found.') {
+      error = new APIError(err.message, 404);
+    } else {
+      error = Error('Server error occured.');
+    }
+    return next(error);
   }
 });
 

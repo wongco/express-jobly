@@ -9,7 +9,7 @@ const app = require('../../app');
 const db = require('../../db');
 
 beforeEach(async () => {
-  // delete any data created by test
+  // delete any data created by prior tests
   await db.query('DELETE FROM companies');
 
   await Company.addCompany({
@@ -36,7 +36,7 @@ describe('GET /companies', () => {
     expect(companies).toHaveLength(2);
   });
 
-  it('Get specific company success', async () => {
+  it('Get specific companies success', async () => {
     const response = await request(app)
       .get(`/companies`)
       .query({
@@ -49,7 +49,7 @@ describe('GET /companies', () => {
     expect(companies[0]).toHaveProperty('handle', 'roni');
   });
 
-  it('Get specific company failure', async () => {
+  it('Get specific companies no results success', async () => {
     const response = await request(app)
       .get(`/companies`)
       .query({
@@ -68,8 +68,8 @@ describe('GET /companies', () => {
         min_employees: 30,
         max_employees: 10
       });
-    expect(response.statusCode).toBe(404);
-    expect(response.body.error.message).toEqual('the parameters are incorrect');
+    expect(response.statusCode).toBe(500);
+    expect(response.body.error.message).toEqual('Server error occured.');
   });
 });
 
@@ -100,10 +100,8 @@ describe('POST /companies', () => {
       });
 
     const { error } = response.body;
-    expect(error.message).toEqual(
-      'duplicate key value violates unique constraint "companies_pkey"'
-    );
-    expect(error.status).toBe(422);
+    expect(error.status).toBe(500);
+    expect(error.message).toEqual('Server error occured.');
   });
 
   it('Adding a company failed because missing params', async () => {
@@ -115,10 +113,57 @@ describe('POST /companies', () => {
       });
 
     const { error } = response.body;
-    expect(error.status).toBe(422);
-    expect(error.message).toEqual(
-      'null value in column "handle" violates not-null constraint'
-    );
+    expect(error.status).toBe(500);
+    expect(error.message).toEqual('Server error occured.');
+  });
+});
+
+describe('GET /companies/:handle', () => {
+  it('Getting a company succeeded', async () => {
+    const response = await request(app).get(`/companies/roni`);
+
+    const { company } = response.body;
+    expect(response.statusCode).toBe(200);
+    expect(company).toHaveProperty('handle', 'roni');
+  });
+
+  it('Getting a company failed', async () => {
+    const response = await request(app).get(`/companies/gin`);
+
+    expect(response.statusCode).toBe(404);
+    expect(response.body.error.message).toEqual('Company not found.');
+  });
+});
+
+describe('PATCH /companies/:handle', async () => {
+  it('Patching a company succeeded', async () => {
+    const response = await request(app)
+      .patch(`/companies/roni`)
+      .send({
+        name: 'RoniTechCorp',
+        num_employees: 1000,
+        description: 'Roni Tech 2.0',
+        logo_url: 'https://www.ronitechcorp.com/wow.jpg'
+      });
+
+    const { company } = response.body;
+    expect(response.statusCode).toBe(200);
+    expect(company).toHaveProperty('handle', 'roni');
+    expect(company).toHaveProperty('num_employees', 1000);
+  });
+
+  it('fails to update non existent company', async () => {
+    const response = await request(app)
+      .patch(`/companies/cranky`)
+      .send({
+        name: 'Wow',
+        num_employees: 10,
+        description: 'What 2.0',
+        logo_url: 'https://www.iamlost.com/no.jpg'
+      });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.body.error.message).toEqual('Company not found.');
   });
 });
 

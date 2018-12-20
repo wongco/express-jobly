@@ -1,6 +1,6 @@
 // we need
 const db = require('../db');
-const APIError = require('./ApiError');
+const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
   /** getCompanies -- retreive companies details
@@ -28,14 +28,13 @@ class Company {
     if (compParamsQueryArray.length > 0) {
       queryString += ' WHERE';
 
+      // if min_employees & max_employees keys exist, make sure min < max
       if (
         companyParams.hasOwnProperty('min_employees') &&
         companyParams.hasOwnProperty('min_employees')
       ) {
         if (companyParams.min_employees > companyParams.max_employees) {
-          const err = new Error('the parameters are incorrect');
-          err.status = 404;
-          throw err;
+          throw new Error('Check that your parameters are correct.');
         }
       }
 
@@ -79,21 +78,16 @@ class Company {
     description = '',
     logo_url = ''
   }) {
-    try {
-      const company = await db.query(
-        'INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-        [handle, name, num_employees, description, logo_url]
-      );
-      return company.rows[0];
-    } catch (err) {
-      err.status = 422;
-      throw err;
-    }
+    const company = await db.query(
+      'INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [handle, name, num_employees, description, logo_url]
+    );
+    return company.rows[0];
   }
 
-  /** getCompany -- get specific company
-   * Sample companyData Input
-   * => {
+  /** getCompany -- get a specific company
+   * input: 'roni'
+   * output: => {
       handle: 'roni',
       name: 'Roni, Inc.',
       num_employees: 50,
@@ -108,7 +102,38 @@ class Company {
     );
 
     if (company.rows.length === 0) {
-      throw new APIError('Company not found', 404);
+      throw new Error('Company not found.');
+    }
+    return company.rows[0];
+  }
+
+  /** patchCompany -- get specific company
+   * Sample companyData Input
+   * ('handlename', {
+      name: 'Roni, Inc.',
+      num_employees: 500,
+      description: 'Amazing Cooking',
+      logo_url: 'https://www.amazingcooking.com/logo.png'
+      }) => {
+      handle: 'roni',
+      name: 'Roni, Inc.',
+      num_employees: 500,
+      description: 'Amazing Cooking',
+      logo_url: 'https://www.amazingcooking.com/logo.png'
+    }
+   */
+  static async patchCompany(handle, companyDetails) {
+    const { query, values } = sqlForPartialUpdate(
+      'companies',
+      companyDetails,
+      'handle',
+      handle
+    );
+
+    const company = await db.query(query, values);
+
+    if (company.rows.length === 0) {
+      throw new Error('Company not found.');
     }
     return company.rows[0];
   }

@@ -19,8 +19,8 @@ beforeEach(async () => {
   );
 });
 
-describe('testing getCompanies function', async () => {
-  it('should give us specific company success', async () => {
+describe('getCompanies method', async () => {
+  it('should give us specific results', async () => {
     const companies = await Company.getCompanies({
       search: 'roni',
       min_employees: 1,
@@ -36,16 +36,15 @@ describe('testing getCompanies function', async () => {
     expect(companies).toHaveLength(2);
   });
 
-  it('should fail with 404 when min > max', async () => {
+  it('should fail when when min > max', async () => {
     try {
-      const companies = await Company.getCompanies({
+      await Company.getCompanies({
         search: 'roni',
         min_employees: 30,
         max_employees: 10
       });
     } catch (err) {
-      expect(err.message).toEqual('the parameters are incorrect');
-      expect(err.status).toEqual(404);
+      expect(err.message).toEqual('Check that your parameters are correct.');
     }
   });
 
@@ -57,8 +56,8 @@ describe('testing getCompanies function', async () => {
   });
 });
 
-describe('testing addCompany function', async () => {
-  it('should test adding a company successfully', async () => {
+describe('addCompany method', async () => {
+  it('adding a company successfully', async () => {
     const company = await Company.addCompany({
       handle: 'gin',
       name: 'WongCo, Inc.',
@@ -68,9 +67,9 @@ describe('testing addCompany function', async () => {
     expect(company).toHaveProperty('handle', 'gin');
   });
 
-  it('should fail adding a company that exists', async () => {
+  it('fail adding a company that exists', async () => {
     try {
-      const company = await Company.addCompany({
+      await Company.addCompany({
         handle: 'roni',
         name: 'Roni Inc',
         num_employees: 51
@@ -82,15 +81,62 @@ describe('testing addCompany function', async () => {
     }
   });
 
-  it('should fail bad sql query because missing handle', async () => {
+  it('fail bad sql query due to missing handle key', async () => {
     try {
-      const company = await Company.addCompany({
+      await Company.addCompany({
         name: 'Roni Inc',
         num_employees: 51
       });
     } catch (err) {
       expect(err.message).toEqual(
         'null value in column "handle" violates not-null constraint'
+      );
+    }
+  });
+});
+
+describe('getCompany method', async () => {
+  it('gets a company successfully', async () => {
+    const company = await Company.getCompany('roni');
+    expect(company).toHaveProperty('handle', 'roni');
+  });
+
+  it('should fail company does not exist', async () => {
+    try {
+      await Company.getCompany('cookies');
+    } catch (err) {
+      expect(err.message).toEqual('Company not found.');
+    }
+  });
+});
+
+describe('patchCompany method', async () => {
+  it('updates a company successfully', async () => {
+    const company = await Company.patchCompany('roni', {
+      num_employees: 100
+    });
+    expect(company).toHaveProperty('handle', 'roni');
+    expect(company).toHaveProperty('num_employees', 100);
+  });
+
+  it('fails when company does not exist', async () => {
+    try {
+      await Company.patchCompany('gin', {
+        num_employees: 100
+      });
+    } catch (error) {
+      expect(error.message).toEqual('Company not found.');
+    }
+  });
+
+  it('fails when bad attribute is provided', async () => {
+    try {
+      await Company.patchCompany('roni', {
+        num_parties: 100
+      });
+    } catch (err) {
+      expect(err.message).toEqual(
+        'column "num_parties" of relation "companies" does not exist'
       );
     }
   });

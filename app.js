@@ -6,7 +6,6 @@ app.use(express.json()); // middleware to parse json, so express can read json
 const APIError = require('./models/ApiError');
 
 // add logging system
-
 const morgan = require('morgan');
 app.use(morgan('tiny'));
 
@@ -15,7 +14,6 @@ const companiesRoutes = require('./routes/companies');
 app.use('/companies', companiesRoutes);
 
 /** 404 handler */
-
 app.use(function(req, res, next) {
   const err = new Error('Not Found');
   err.status = 404;
@@ -31,16 +29,13 @@ app.use(function(err, req, res, next) {
   if (!(err instanceof APIError)) {
     err = new APIError(err.message, err.status);
   }
+
+  // Custom Error Message for 422
+  // if (err.status === 422) {
+  //   err.message = 'Error. Check your inputs.';
+  // }
+
   return res.status(err.status).json(err);
 });
-
-// app.use(function(err, req, res, next) {
-//   res.status(err.status || 500);
-
-//   return res.json({
-//     error: err,
-//     message: err.message
-//   });
-// });
 
 module.exports = app;
