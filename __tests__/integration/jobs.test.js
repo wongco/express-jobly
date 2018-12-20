@@ -98,6 +98,70 @@ describe('GET /jobs', () => {
   });
 });
 
+describe('GET /jobs/:id', () => {
+  it('get any specific job succeeded', async () => {
+    const jobs = await Job.getJobs({});
+    const firstId = jobs[0].id;
+
+    const response = await request(app).get(`/jobs/${firstId}`);
+    const { job } = response.body;
+    expect(response.statusCode).toBe(200);
+    expect(job).toHaveProperty('title', 'CEO');
+  });
+
+  it('fail to get non existing job', async () => {
+    const response = await request(app).get(`/jobs/0`);
+    const { error } = response.body;
+    expect(error.status).toBe(404);
+    expect(error).toHaveProperty('message');
+  });
+
+  it('user passed in non number job id', async () => {
+    const response = await request(app).get(`/jobs/abc`);
+    const { error } = response.body;
+    expect(error.status).toBe(422);
+    expect(error).toHaveProperty('message');
+  });
+});
+
+describe('PATCH /jobs/:id', () => {
+  it('updates a specific job succeeded', async () => {
+    const jobs = await Job.getJobs({});
+    const firstId = jobs[0].id;
+
+    const response = await request(app)
+      .patch(`/jobs/${firstId}`)
+      .send({
+        title: 'CEEEEEEEEO',
+        salary: 5,
+        equity: 0.0001,
+        company_handle: 'google'
+      });
+    const { job } = response.body;
+    expect(response.statusCode).toBe(200);
+    expect(job).toHaveProperty('title', 'CEEEEEEEEO');
+  });
+
+  it('fails to update because of invalid company', async () => {
+    const jobs = await Job.getJobs({});
+    const firstId = jobs[0].id;
+
+    const response = await request(app)
+      .patch(`/jobs/${firstId}`)
+      .send({
+        title: 'CEEEEEEEEO',
+        salary: 5,
+        equity: 0.0001,
+        company_handle: 'wooooooooo'
+      });
+    const { error } = response.body;
+    expect(error.status).toBe(404);
+    expect(error).toHaveProperty('message');
+  });
+
+  // add error handling after json validation for post
+});
+
 afterEach(async function() {
   // delete any data created by test
   await db.query('DELETE FROM companies');

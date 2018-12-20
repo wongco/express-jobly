@@ -79,6 +79,15 @@ class Company {
     description = '',
     logo_url = ''
   }) {
+    // check if company exists, other getCompany will throw error
+    const checkCompany = await db.query(
+      `SELECT * FROM companies WHERE handle = $1`,
+      [handle]
+    );
+    if (checkCompany.rows.length !== 0) {
+      throw new Error('Company already exists.');
+    }
+
     const company = await db.query(
       'INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [handle, name, num_employees, description, logo_url]

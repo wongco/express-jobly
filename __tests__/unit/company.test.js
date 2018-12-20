@@ -75,9 +75,7 @@ describe('addCompany method', async () => {
         num_employees: 51
       });
     } catch (err) {
-      expect(err.message).toEqual(
-        'duplicate key value violates unique constraint "companies_pkey"'
-      );
+      expect(err.message).toEqual('Company already exists.');
     }
   });
 

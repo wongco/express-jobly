@@ -1,4 +1,6 @@
 const db = require('../db'); //connect to db
+const Company = require('./Company');
+const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Job {
   /** addAJob -- add a new job posting
@@ -11,6 +13,9 @@ class Job {
     }
    */
   static async addJob({ title, salary, equity, company_handle }) {
+    // checks if company exists, if not, throw error
+    await Company.getCompany(company_handle);
+
     const job = await db.query(
       `INSERT INTO jobs (title, salary, equity,company_handle) VALUES ($1, $2, $3, $4) RETURNING *`,
       [title, salary, equity, company_handle]
@@ -73,6 +78,32 @@ class Job {
 
     const result = await db.query(queryString, values);
     return result.rows;
+  }
+
+  static async getJob(id) {
+    const job = await db.query(`SELECT * FROM jobs WHERE id = $1`, [id]);
+
+    if (job.rows.length === 0) {
+      throw new Error('Job not found.');
+    }
+    return job.rows[0];
+  }
+
+  /** patch company data */
+  static async patchJob(id, jobDetails) {
+    // will throw error if job does not exist
+    await Job.getJob(id);
+
+    // parseJob Details  for company_handle
+    const updatedCompHandle = jobDetails.company_handle;
+
+    // check updated Company exists, if not throws error
+    await Company.getCompany(updatedCompHandle);
+
+    const { query, values } = sqlForPartialUpdate('jobs', jobDetails, 'id', id);
+    const jobResults = await db.query(query, values);
+
+    return jobResults.rows[0];
   }
 }
 

@@ -62,11 +62,8 @@ router.post('/', async (req, res, next) => {
     return res.json({ company });
   } catch (err) {
     let error;
-    if (err.routine === '_bt_check_unique') {
-      error = new APIError(
-        `There is already a company with the handle '${req.body.handle}'.`,
-        409
-      );
+    if (err.message === 'Company already exists.') {
+      error = new APIError(`${req.body.handle} already exists.`, 409);
     } else {
       error = Error('Server error occured.');
     }
