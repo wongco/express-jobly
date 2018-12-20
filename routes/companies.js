@@ -3,6 +3,11 @@ const router = new express.Router();
 const Company = require('../models/Company');
 const APIError = require('../models/ApiError');
 
+//json schema for company post
+const { validate } = require('jsonschema');
+const companyPostSchema = require('../schemas/companyPostSchema.json');
+const companyPatchSchema = require('../schemas/companyPatchSchema.json');
+
 /** GET /companies - get detail of companies
  * request query input parameters (optional):
  * {
@@ -41,6 +46,17 @@ router.get('/', async (req, res, next) => {
  * => {company: {companyData}}
  **/
 router.post('/', async (req, res, next) => {
+  const result = validate(req.body, companyPostSchema);
+
+  if (!result.valid) {
+    // pass validation errors to error handler
+    //  (the "stack" key is generally the most useful)
+    let message = result.errors.map(error => error.stack);
+    let status = 400;
+    let error = new APIError(message, status);
+    return next(error);
+  }
+
   try {
     const company = await Company.addCompany(req.body);
     return res.json({ company });
@@ -89,6 +105,17 @@ router.get('/:handle', async (req, res, next) => {
  output: => {company: {companyData}}
  **/
 router.patch('/:handle', async (req, res, next) => {
+  const result = validate(req.body, companyPatchSchema);
+
+  if (!result.valid) {
+    // pass validation errors to error handler
+    //  (the "stack" key is generally the most useful)
+    let message = result.errors.map(error => error.stack);
+    let status = 400;
+    let error = new APIError(message, status);
+    return next(error);
+  }
+
   try {
     const handle = req.params.handle;
     const company = await Company.patchCompany(handle, req.body);
