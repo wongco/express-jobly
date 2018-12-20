@@ -45,7 +45,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-/** GET /companies/:handle - get detail of companies
+/** GET /companies/:handle - get detail of specific company
  *
  * => {company: {companyData}}
  **/
@@ -65,7 +65,7 @@ router.get('/:handle', async (req, res, next) => {
   }
 });
 
-/** PATCH /companies/:handle - update details of companies
+/** PATCH /companies/:handle - update details of company
  request body input:
  {
    "name": "Apple Inc",
@@ -79,6 +79,25 @@ router.patch('/:handle', async (req, res, next) => {
   try {
     const handle = req.params.handle;
     const company = await Company.patchCompany(handle, req.body);
+    return res.json({ company });
+  } catch (err) {
+    let error;
+    if (err.message === 'Company not found.') {
+      error = new APIError(err.message, 404);
+    } else {
+      error = Error('Server error occured.');
+    }
+    return next(error);
+  }
+});
+
+/** DELETE /companies/:handle - delete company
+input: handle (parameter)
+ **/
+router.delete('/:handle', async (req, res, next) => {
+  try {
+    const handle = req.params.handle;
+    const company = await Company.deleteCompany(handle);
     return res.json({ company });
   } catch (err) {
     let error;

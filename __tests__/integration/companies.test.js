@@ -135,7 +135,7 @@ describe('GET /companies/:handle', () => {
   });
 });
 
-describe('PATCH /companies/:handle', async () => {
+describe('PATCH /companies/:handle', () => {
   it('Patching a company succeeded', async () => {
     const response = await request(app)
       .patch(`/companies/roni`)
@@ -161,6 +161,27 @@ describe('PATCH /companies/:handle', async () => {
         description: 'What 2.0',
         logo_url: 'https://www.iamlost.com/no.jpg'
       });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.body.error.message).toEqual('Company not found.');
+  });
+});
+
+describe('DELETE /companies/:handle', () => {
+  it('deleting a company succeeded', async () => {
+    const response = await request(app).delete(`/companies/google`);
+
+    const { company } = response.body;
+    expect(response.statusCode).toBe(200);
+    expect(company).toHaveProperty('handle', 'google');
+
+    // company no longer exists
+    const response2 = await request(app).get(`/companies/google`);
+    expect(response2.statusCode).toBe(404);
+  });
+
+  it('deleting a company failed', async () => {
+    const response = await request(app).delete(`/companies/whowowwhen`);
 
     expect(response.statusCode).toBe(404);
     expect(response.body.error.message).toEqual('Company not found.');

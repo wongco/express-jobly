@@ -30,11 +30,6 @@ app.use(function(err, req, res, next) {
     err = new APIError(err.message, err.status);
   }
 
-  // Custom Error Message for 422
-  // if (err.status === 422) {
-  //   err.message = 'Error. Check your inputs.';
-  // }
-
   return res.status(err.status).json(err);
 });
 

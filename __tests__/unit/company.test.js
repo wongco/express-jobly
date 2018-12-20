@@ -142,6 +142,21 @@ describe('patchCompany method', async () => {
   });
 });
 
+describe('deleteCompany method', async () => {
+  it('deletes a company successfully', async () => {
+    const company = await Company.deleteCompany('google');
+    expect(company).toHaveProperty('handle', 'google');
+  });
+
+  it('fails when company does not exist', async () => {
+    try {
+      await Company.deleteCompany('wowsers');
+    } catch (error) {
+      expect(error.message).toEqual('Company not found.');
+    }
+  });
+});
+
 afterEach(async function() {
   // delete any data created by test
   await db.query('DELETE FROM companies');

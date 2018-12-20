@@ -97,7 +97,7 @@ class Company {
    */
   static async getCompany(handle) {
     const company = await db.query(
-      `SELECT * FROM companies where handle = $1`,
+      `SELECT * FROM companies WHERE handle = $1`,
       [handle]
     );
 
@@ -108,13 +108,13 @@ class Company {
   }
 
   /** patchCompany -- get specific company
-   * Sample companyData Input
-   * ('handlename', {
+    input: ('handlename', {
       name: 'Roni, Inc.',
       num_employees: 500,
       description: 'Amazing Cooking',
       logo_url: 'https://www.amazingcooking.com/logo.png'
-      }) => {
+      }) 
+    output => {
       handle: 'roni',
       name: 'Roni, Inc.',
       num_employees: 500,
@@ -131,6 +131,28 @@ class Company {
     );
 
     const company = await db.query(query, values);
+
+    if (company.rows.length === 0) {
+      throw new Error('Company not found.');
+    }
+    return company.rows[0];
+  }
+
+  /** deleteCompany -- delete specific company
+   input: handle (param)
+   output: => {
+      handle: 'roni',
+      name: 'Roni, Inc.',
+      num_employees: 500,
+      description: 'Amazing Cooking',
+      logo_url: 'https://www.amazingcooking.com/logo.png'
+    }
+   */
+  static async deleteCompany(handle) {
+    const company = await db.query(
+      `DELETE FROM companies WHERE handle = $1 RETURNING *`,
+      [handle]
+    );
 
     if (company.rows.length === 0) {
       throw new Error('Company not found.');
