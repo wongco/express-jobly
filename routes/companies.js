@@ -45,7 +45,16 @@ router.post('/', async (req, res, next) => {
     const company = await Company.addCompany(req.body);
     return res.json({ company });
   } catch (err) {
-    const error = Error('Server error occured.');
+    let error;
+    console.log(err.routine);
+    if (err.routine === '_bt_check_unique') {
+      error = new APIError(
+        `There is already a company with the handle '${req.body.handle}'.`,
+        409
+      );
+    } else {
+      error = Error('Server error occured.');
+    }
     return next(error);
   }
 });

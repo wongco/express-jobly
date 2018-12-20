@@ -23,7 +23,6 @@ app.use(function(req, res, next) {
 });
 
 /** general error handler */
-// global error handler
 app.use(function(err, req, res, next) {
   // all errors that get to here get coerced into API Errors
   if (!(err instanceof APIError)) {
