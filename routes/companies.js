@@ -18,7 +18,12 @@ router.get('/', async (req, res, next) => {
     const companies = await Company.getCompanies(req.query);
     return res.json({ companies });
   } catch (err) {
-    const error = Error('Server error occured.');
+    let error;
+    if (err.message === 'Check that your parameters are correct.') {
+      error = new APIError(err.message, 400);
+    } else {
+      error = Error('Server error occured.');
+    }
     return next(error);
   }
 });
@@ -97,7 +102,7 @@ input: handle (parameter)
 router.delete('/:handle', async (req, res, next) => {
   try {
     const handle = req.params.handle;
-    const company = await Company.deleteCompany(handle);
+    await Company.deleteCompany(handle);
     return res.json({ message: 'Company deleted' });
   } catch (err) {
     let error;

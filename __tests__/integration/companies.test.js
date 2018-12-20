@@ -68,8 +68,10 @@ describe('GET /companies', () => {
         min_employees: 30,
         max_employees: 10
       });
-    expect(response.statusCode).toBe(500);
-    expect(response.body.error.message).toEqual('Server error occured.');
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error.message).toEqual(
+      'Check that your parameters are correct.'
+    );
   });
 });
 
