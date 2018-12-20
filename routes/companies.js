@@ -98,7 +98,7 @@ router.delete('/:handle', async (req, res, next) => {
   try {
     const handle = req.params.handle;
     const company = await Company.deleteCompany(handle);
-    return res.json({ company });
+    return res.json({ message: 'Company deleted' });
   } catch (err) {
     let error;
     if (err.message === 'Company not found.') {

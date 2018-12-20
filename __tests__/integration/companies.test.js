@@ -171,9 +171,8 @@ describe('DELETE /companies/:handle', () => {
   it('deleting a company succeeded', async () => {
     const response = await request(app).delete(`/companies/google`);
 
-    const { company } = response.body;
     expect(response.statusCode).toBe(200);
-    expect(company).toHaveProperty('handle', 'google');
+    expect(response.body).toHaveProperty('message', 'Company deleted');
 
     // company no longer exists
     const response2 = await request(app).get(`/companies/google`);
