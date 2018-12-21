@@ -3,6 +3,10 @@ const router = new express.Router();
 const User = require('../models/User');
 const APIError = require('../models/ApiError');
 
+//json schema dor user post, patch
+const { validate } = require('jsonschema');
+const userPostSchema = require('../schemas/userPostSchema.json');
+const userPatchSchema = require('../schemas/userPatchSchema.json');
 /** POST /users - add new user
  * input:
 {
@@ -28,17 +32,20 @@ const APIError = require('../models/ApiError');
 }
  **/
 router.post('/', async (req, res, next) => {
+  const result = validate(req.body, userPostSchema);
+
+  if (!result.valid) {
+    // pass validation errors to error handler
+    let message = result.errors.map(error => error.stack);
+    let status = 400;
+    let error = new APIError(message, status);
+    return next(error);
+  }
+
   try {
     const user = await User.addUser(req.body);
     return res.json({ user });
   } catch (err) {
-    // let error;
-    // if (err.message === 'Company not found.') {
-    //   error = new APIError(err.message, 400);
-    // } else {
-    //   error = Error('Server error occured.');
-    // }
-    // return next(error);
     return next(err);
   }
 });
@@ -93,6 +100,15 @@ router.get('/:username', async (req, res, next) => {
  * output: {user: {username, first_name, last_name, email, photo_url}}
  **/
 router.patch('/:username', async (req, res, next) => {
+  const result = validate(req.body, userPatchSchema);
+  if (!result.valid) {
+    //pass validation errors to error handler
+    let message = result.errors.map(err => err.stack);
+    status = 400;
+    error = new APIError(message, status);
+    return next(error);
+  }
+
   try {
     const { username } = req.params;
     const user = await User.patchUser(username, req.body);
