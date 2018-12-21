@@ -20,6 +20,12 @@ class Company {
    */
   static async getCompanies(companyParams) {
     for (let key in companyParams) {
+      if (key.startsWith('_')) {
+        delete companyParams[key];
+      }
+    }
+
+    for (let key in companyParams) {
       if (!companyParams[key]) {
         delete companyParams[key];
       }

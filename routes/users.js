@@ -5,6 +5,9 @@ const APIError = require('../models/ApiError');
 const jwt = require('jsonwebtoken');
 const { SECRET } = require('../config');
 
+const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
+const removeToken = require('../helpers/removeToken');
+
 //json schema dor user post, patch
 const { validate } = require('jsonschema');
 const userPostSchema = require('../schemas/userPostSchema.json');
@@ -76,7 +79,7 @@ router.get('/', async (req, res, next) => {
 /** GET /users/:username - get specific user details
  * output: {user: {username, first_name, last_name, email, photo_url}}
  **/
-router.get('/:username', async (req, res, next) => {
+router.get('/:username', ensureCorrectUser, async (req, res, next) => {
   try {
     const { username } = req.params;
     const user = await User.getUser(username);
@@ -103,7 +106,7 @@ router.get('/:username', async (req, res, next) => {
 }
  * output: {user: {username, first_name, last_name, email, photo_url}}
  **/
-router.patch('/:username', async (req, res, next) => {
+router.patch('/:username', ensureCorrectUser, async (req, res, next) => {
   const result = validate(req.body, userPatchSchema);
   if (!result.valid) {
     //pass validation errors to error handler
@@ -112,6 +115,9 @@ router.patch('/:username', async (req, res, next) => {
     let error = new APIError(message, status);
     return next(error);
   }
+
+  // after schema check, remove token
+  removeToken(req.body);
 
   try {
     const { username } = req.params;
@@ -132,7 +138,7 @@ router.patch('/:username', async (req, res, next) => {
 
  * output: { message: "User deleted" }
  **/
-router.delete('/:username', async (req, res, next) => {
+router.delete('/:username', ensureCorrectUser, async (req, res, next) => {
   try {
     const { username } = req.params;
     const user = await User.deleteUser(username);

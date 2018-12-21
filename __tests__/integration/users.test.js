@@ -8,6 +8,7 @@ const User = require('../../models/User');
 const app = require('../../app');
 const db = require('../../db');
 
+let bobToken;
 beforeEach(async () => {
   // delete any data created by prior tests
   await db.query('DELETE FROM users');
@@ -30,6 +31,15 @@ beforeEach(async () => {
     photo_url: 'https://www.wow.com/pic.jpg',
     is_admin: false
   });
+
+  const bobResponse = await request(app)
+    .post('/login')
+    .send({
+      username: 'bob',
+      password: '123456'
+    });
+
+  bobToken = bobResponse.body.token;
 });
 
 describe('POST /users', () => {
@@ -98,7 +108,9 @@ describe('GET /users', () => {
 
 describe('GET /users/:username', () => {
   it('Get a specific user succeeded', async () => {
-    const response = await request(app).get('/users/bob');
+    const response = await request(app)
+      .get('/users/bob')
+      .query({ _token: bobToken });
 
     const { user } = response.body;
     expect(response.statusCode).toBe(200);
@@ -109,8 +121,8 @@ describe('GET /users/:username', () => {
     const response = await request(app).get('/users/jamie');
 
     const { error } = response.body;
-    expect(error.status).toBe(404);
-    expect(error).toHaveProperty('message', 'User does not exist.');
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
   });
 });
 
@@ -119,6 +131,7 @@ describe('PATCH /users/:username', () => {
     const response = await request(app)
       .patch('/users/bob')
       .send({
+        _token: bobToken,
         first_name: 'bobby'
       });
 
@@ -131,14 +144,15 @@ describe('PATCH /users/:username', () => {
     const response = await request(app).patch('/users/jamie');
 
     const { error } = response.body;
-    expect(error.status).toBe(404);
-    expect(error).toHaveProperty('message', 'User does not exist.');
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
   });
 
   it('fail to modify user, invalid parameter', async () => {
     const response = await request(app)
       .patch('/users/bob')
       .send({
+        _token: bobToken,
         cookies: 'bobby'
       });
 
@@ -150,22 +164,24 @@ describe('PATCH /users/:username', () => {
 
 describe('DELETE /users/:username', () => {
   it('deleted a specific user successfully', async () => {
-    const response = await request(app).delete('/users/bob');
+    const response = await request(app)
+      .delete('/users/bob')
+      .send({ _token: bobToken });
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty('message', 'User deleted');
 
     // user no longer exists
     const response2 = await request(app).get(`/users/bob`);
-    expect(response2.statusCode).toBe(404);
+    expect(response2.statusCode).toBe(401);
   });
 
   it('Cannot find requested user', async () => {
     const response = await request(app).delete('/users/jimmmmmmt');
 
     const { error } = response.body;
-    expect(error.status).toBe(404);
-    expect(error).toHaveProperty('message', 'User does not exist.');
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
   });
 });
 

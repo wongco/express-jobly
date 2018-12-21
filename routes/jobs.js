@@ -66,7 +66,6 @@ input from req.query
  **/
 router.get('/', ensureLoggedIn, async (req, res, next) => {
   try {
-    console.log('hi');
     const jobs = await Job.getJobs(req.query);
     return res.json({ jobs });
   } catch (error) {
@@ -78,7 +77,7 @@ router.get('/', ensureLoggedIn, async (req, res, next) => {
  *
  * => {jobs: {jobData}}
  **/
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', ensureLoggedIn, async (req, res, next) => {
   try {
     const { id } = req.params;
     const job = await Job.getJob(+id);

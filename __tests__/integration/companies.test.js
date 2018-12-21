@@ -4,14 +4,28 @@ process.env.NODE_ENV = 'test';
 const request = require('supertest');
 const Job = require('../../models/Job');
 const Company = require('../../models/Company');
+const User = require('../../models/User');
 
 // app imports
 const app = require('../../app');
 const db = require('../../db');
 
+let bobToken;
+
 beforeEach(async () => {
   // delete any data created by prior tests
   await db.query('DELETE FROM companies');
+  await db.query('DELETE FROM users');
+
+  await User.addUser({
+    username: 'bob',
+    password: '123456',
+    first_name: 'bobby',
+    last_name: 'wow',
+    email: 'bobbbby@goodboy.com',
+    photo_url: 'https://www.wow.com/pic.jpg',
+    is_admin: false
+  });
 
   await Company.addCompany({
     handle: 'roni',
@@ -38,13 +52,22 @@ beforeEach(async () => {
     equity: 0.5,
     company_handle: 'google'
   });
+
+  const bobResponse = await request(app)
+    .post('/login')
+    .send({
+      username: 'bob',
+      password: '123456'
+    });
+
+  bobToken = bobResponse.body.token;
 });
 
 describe('GET /companies', () => {
   it('Get all companies success', async () => {
     const response = await request(app)
       .get(`/companies`)
-      .query({}); //check if we need it
+      .query({ _token: bobToken }); //check if we need it
 
     const { companies } = response.body;
     expect(response.statusCode).toBe(200);
@@ -55,6 +78,7 @@ describe('GET /companies', () => {
     const response = await request(app)
       .get(`/companies`)
       .query({
+        _token: bobToken,
         search: 'roni'
       });
 
@@ -68,6 +92,7 @@ describe('GET /companies', () => {
     const response = await request(app)
       .get(`/companies`)
       .query({
+        _token: bobToken,
         search: 'uber'
       });
 
@@ -80,6 +105,7 @@ describe('GET /companies', () => {
     const response = await request(app)
       .get(`/companies`)
       .query({
+        _token: bobToken,
         min_employees: 30,
         max_employees: 10
       });
@@ -136,7 +162,9 @@ describe('POST /companies', () => {
 
 describe('GET /companies/:handle', () => {
   it('Getting a company and its related job posts succeeded', async () => {
-    const response = await request(app).get(`/companies/roni`);
+    const response = await request(app)
+      .get(`/companies/roni`)
+      .query({ _token: bobToken });
     const { company } = response.body;
     expect(response.statusCode).toBe(200);
     expect(company).toHaveProperty('handle', 'roni');
@@ -144,7 +172,9 @@ describe('GET /companies/:handle', () => {
   });
 
   it('Getting a company failed', async () => {
-    const response = await request(app).get(`/companies/gin`);
+    const response = await request(app)
+      .get(`/companies/gin`)
+      .query({ _token: bobToken });
 
     expect(response.statusCode).toBe(404);
     expect(response.body.error.message).toEqual('Company not found.');
@@ -191,7 +221,9 @@ describe('DELETE /companies/:handle', () => {
     expect(response.body).toHaveProperty('message', 'Company deleted');
 
     // company no longer exists
-    const response2 = await request(app).get(`/companies/google`);
+    const response2 = await request(app)
+      .get(`/companies/google`)
+      .query({ _token: bobToken });
     expect(response2.statusCode).toBe(404);
   });
 
@@ -206,6 +238,7 @@ describe('DELETE /companies/:handle', () => {
 afterEach(async function() {
   // delete any data created by test
   await db.query('DELETE FROM companies');
+  await db.query('DELETE FROM users');
 });
 
 afterAll(async function() {

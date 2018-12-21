@@ -138,21 +138,27 @@ describe('GET /jobs/:id', () => {
     const jobs = await Job.getJobs({});
     const firstId = jobs[0].id;
 
-    const response = await request(app).get(`/jobs/${firstId}`);
+    const response = await request(app)
+      .get(`/jobs/${firstId}`)
+      .query({ _token: bobToken });
     const { job } = response.body;
     expect(response.statusCode).toBe(200);
     expect(job).toHaveProperty('title', 'CEO');
   });
 
   it('fail to get non existing job', async () => {
-    const response = await request(app).get(`/jobs/0`);
+    const response = await request(app)
+      .get(`/jobs/0`)
+      .query({ _token: bobToken });
     const { error } = response.body;
     expect(error.status).toBe(404);
     expect(error).toHaveProperty('message');
   });
 
   it('user passed in non number job id', async () => {
-    const response = await request(app).get(`/jobs/abc`);
+    const response = await request(app)
+      .get(`/jobs/abc`)
+      .query({ _token: bobToken });
     const { error } = response.body;
     expect(error.status).toBe(422);
     expect(error).toHaveProperty('message');

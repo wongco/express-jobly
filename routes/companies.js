@@ -3,6 +3,7 @@ const router = new express.Router();
 const Company = require('../models/Company');
 const Job = require('../models/Job');
 const APIError = require('../models/ApiError');
+const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
 
 //json schema for company post
 const { validate } = require('jsonschema');
@@ -19,7 +20,7 @@ const companyPatchSchema = require('../schemas/companyPatchSchema.json');
  *
  * => {companies: [companyData, ...]}
  **/
-router.get('/', async (req, res, next) => {
+router.get('/', ensureLoggedIn, async (req, res, next) => {
   try {
     const companies = await Company.getCompanies(req.query);
     return res.json({ companies });
@@ -76,7 +77,7 @@ router.post('/', async (req, res, next) => {
  *
  * => {company: {companyData}}
  **/
-router.get('/:handle', async (req, res, next) => {
+router.get('/:handle', ensureLoggedIn, async (req, res, next) => {
   try {
     const handle = req.params.handle;
     const company = await Company.getCompany(handle);
