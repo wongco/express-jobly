@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 
 // npm pacakges
 const request = require('supertest');
+const Job = require('../../models/Job');
 const Company = require('../../models/Company');
 
 // app imports
@@ -22,6 +23,20 @@ beforeEach(async () => {
     handle: 'google',
     name: 'Google Inc',
     num_employees: 5000
+  });
+  // add jobs
+  await Job.addJob({
+    title: 'CEO',
+    salary: 5000000,
+    equity: 0.25,
+    company_handle: 'roni'
+  });
+
+  await Job.addJob({
+    title: 'CTO',
+    salary: 500000000,
+    equity: 0.5,
+    company_handle: 'google'
   });
 });
 
@@ -120,12 +135,14 @@ describe('POST /companies', () => {
 });
 
 describe('GET /companies/:handle', () => {
-  it('Getting a company succeeded', async () => {
+  it('Getting a company and its related job posts succeeded', async () => {
     const response = await request(app).get(`/companies/roni`);
-
+    console.log(response);
     const { company } = response.body;
+    console.log(company);
     expect(response.statusCode).toBe(200);
     expect(company).toHaveProperty('handle', 'roni');
+    expect(Array.isArray(company.jobs)).toBe(true);
   });
 
   it('Getting a company failed', async () => {

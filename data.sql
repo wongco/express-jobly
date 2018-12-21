@@ -34,3 +34,38 @@ VALUES
     ('accounting', 100, 0.1, 'ibm' ),
     ('IT', 148598, 0.2, 'google' ),
     ('HR', 3740, 0.01, 'roni' );
+
+CREATE TABLE users
+(
+    id serial PRIMARY KEY,
+    title text NOT NULL,
+    salary float NOT NULL,
+    equity float NOT NULL CHECK (equity <=1 and equity >=0),
+    company_handle text NOT NULL REFERENCES companies ON DELETE CASCADE,
+    date_posted date DEFAULT CURRENT_DATE NOT NULL
+);
+
+-- username: a primary key that is text
+-- password: a non-nullable column
+-- first_name: a non-nullable column
+-- last_name: a non-nullable column
+-- email: a non-nullable column that is and unique
+-- photo_url: a column that is text
+-- is_admin: a column that is not null, boolean and defaults to false
+
+
+
+
+
+
+
+
+
+
+INSERT INTO jobs
+    (title, salary, equity, company_handle)
+VALUES
+    ('SE', 1000000, 0.5, 'apple' ),
+    ('accounting', 100, 0.1, 'ibm' ),
+    ('IT', 148598, 0.2, 'google' ),
+    ('HR', 3740, 0.01, 'roni' );

@@ -94,7 +94,7 @@ describe('addCompany method', async () => {
 });
 
 describe('getCompany method', async () => {
-  it('gets a company successfully', async () => {
+  it('gets a company and its job posts successfully', async () => {
     const company = await Company.getCompany('roni');
     expect(company).toHaveProperty('handle', 'roni');
   });

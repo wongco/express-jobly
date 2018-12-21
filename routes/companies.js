@@ -1,6 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 const Company = require('../models/Company');
+const Job = require('../models/Job');
 const APIError = require('../models/ApiError');
 
 //json schema for company post
@@ -79,17 +80,9 @@ router.get('/:handle', async (req, res, next) => {
   try {
     const handle = req.params.handle;
     const company = await Company.getCompany(handle);
-
-    // {
-    //   "handle": "apple",
-    //   "name": "Apple Inc",
-    //   "num_employees": 300,
-    //   "description": null,
-    //   "logo_url": null
-    // }
-
-    // grab some joined data and return results
-
+    const companyHandle = company.handle;
+    const jobs = await Job.getJobs({ search: companyHandle });
+    company.jobs = jobs;
     return res.json({ company });
   } catch (err) {
     let error;
