@@ -79,6 +79,17 @@ router.get('/:handle', async (req, res, next) => {
   try {
     const handle = req.params.handle;
     const company = await Company.getCompany(handle);
+
+    // {
+    //   "handle": "apple",
+    //   "name": "Apple Inc",
+    //   "num_employees": 300,
+    //   "description": null,
+    //   "logo_url": null
+    // }
+
+    // grab some joined data and return results
+
     return res.json({ company });
   } catch (err) {
     let error;

@@ -162,6 +162,25 @@ describe('PATCH /jobs/:id', () => {
   // add error handling after json validation for post
 });
 
+describe('DELETE /jobs/:id', () => {
+  it('deletes a specific job successfully', async () => {
+    const jobs = await Job.getJobs({});
+    const firstId = jobs[0].id;
+    const response = await request(app).delete(`/jobs/${firstId}`);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toHaveProperty('message', 'Job deleted');
+  });
+
+  it('fails to delete non existing job', async () => {
+    const response = await request(app).delete(`/jobs/100000`);
+
+    const { error } = response.body;
+    expect(error.status).toBe(404);
+    expect(error).toHaveProperty('message', 'Job not found.');
+  });
+});
+
 afterEach(async function() {
   // delete any data created by test
   await db.query('DELETE FROM companies');

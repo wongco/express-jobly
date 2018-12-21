@@ -80,6 +80,7 @@ class Job {
     return result.rows;
   }
 
+  /** get specific job details */
   static async getJob(id) {
     const job = await db.query(`SELECT * FROM jobs WHERE id = $1`, [id]);
 
@@ -89,7 +90,7 @@ class Job {
     return job.rows[0];
   }
 
-  /** patch company data */
+  /** patch job details */
   static async patchJob(id, jobDetails) {
     // will throw error if job does not exist
     await Job.getJob(id);
@@ -102,6 +103,19 @@ class Job {
 
     const { query, values } = sqlForPartialUpdate('jobs', jobDetails, 'id', id);
     const jobResults = await db.query(query, values);
+
+    return jobResults.rows[0];
+  }
+
+  /** delete job */
+  static async deleteJob(id) {
+    // will throw error if job does not exist
+    await Job.getJob(id);
+
+    const jobResults = await db.query(
+      `DELETE FROM jobs WHERE id = $1 RETURNING *`,
+      [id]
+    );
 
     return jobResults.rows[0];
   }

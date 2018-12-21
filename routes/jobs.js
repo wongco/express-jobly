@@ -103,4 +103,26 @@ router.patch('/:id', async (req, res, next) => {
   }
 });
 
+/** DELETE /jobs/:id - delete specific job
+ *
+ * => {message: "Job deleted"}
+ **/
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const job = await Job.deleteJob(+id);
+    return res.json({ message: 'Job deleted' });
+  } catch (err) {
+    let error;
+    if (err.message === 'Job not found.') {
+      error = new APIError(err.message, 404);
+    } else if (err.message === 'invalid input syntax for integer: "NaN"') {
+      error = new APIError('Please provide a valid job ID.', 422);
+    } else {
+      error = Error('Server error occured.');
+    }
+    return next(error);
+  }
+});
+
 module.exports = router;
