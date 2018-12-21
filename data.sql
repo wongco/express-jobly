@@ -38,21 +38,6 @@ VALUES
 
 CREATE TABLE users
 (
-<<<<<<< HEAD
-    username text PRIMARY KEY,
-    password text NOT NULL,
-    first_name float NOT NULL,
-    equity float NOT NULL CHECK (equity <=1 and equity >=0),
-    company_handle text NOT NULL REFERENCES companies ON DELETE CASCADE,
-    date_posted date DEFAULT CURRENT_DATE NOT NULL
-||||||| merged common ancestors
-    id serial PRIMARY KEY,
-    title text NOT NULL,
-    salary float NOT NULL,
-    equity float NOT NULL CHECK (equity <=1 and equity >=0),
-    company_handle text NOT NULL REFERENCES companies ON DELETE CASCADE,
-    date_posted date DEFAULT CURRENT_DATE NOT NULL
-=======
     username text PRIMARY KEY,
     password text NOT NULL,
     first_name text NOT NULL,
@@ -60,13 +45,11 @@ CREATE TABLE users
     email text NOT NULL UNIQUE,
     photo_url text,
     is_admin BOOLEAN DEFAULT FALSE NOT NULL
->>>>>>> 5cca22cca32da4594926f1319b1f755912dbf377
 );
-
--- INSERT INTO users
---     (username, password, first_name, last_name, email, is_admin)
--- VALUES
---     ('roni', '123456', 'roni', 'h', 'rh@abcdefghijklmon.com', true),
---     ('gin', '123456', 'gin', 'w', 'gw@abcdefghijklmon.com', true),
---     ('joe', '123456', 'joe', 'a', 'ja@yay.com', false),
---     ('michael', '123456', 'mic', 'b', 'mb@ohno.com', false);
+INSERT INTO users
+    (username, password, first_name, last_name, email, is_admin)
+VALUES
+    ('roni', '123456', 'roni', 'h', 'rh@abcdefghijklmon.com', true),
+    ('gin', '123456', 'gin', 'w', 'gw@abcdefghijklmon.com', true),
+    ('joe', '123456', 'joe', 'a', 'ja@yay.com', false),
+    ('michael', '123456', 'mic', 'b', 'mb@ohno.com', false);
