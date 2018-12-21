@@ -47,10 +47,10 @@ CREATE TABLE users
     is_admin BOOLEAN DEFAULT FALSE NOT NULL
 );
 
-INSERT INTO users
-    (username, password, first_name, last_name, email, is_admin)
-VALUES
-    ('roni', '123456', 'roni', 'h', 'rh@abcdefghijklmon.com', true),
-    ('gin', '123456', 'gin', 'w', 'gw@abcdefghijklmon.com', true),
-    ('joe', '123456', 'joe', 'a', 'ja@yay.com', false),
-    ('michael', '123456', 'mic', 'b', 'mb@ohno.com', false);
+-- INSERT INTO users
+--     (username, password, first_name, last_name, email, is_admin)
+-- VALUES
+--     ('roni', '123456', 'roni', 'h', 'rh@abcdefghijklmon.com', true),
+--     ('gin', '123456', 'gin', 'w', 'gw@abcdefghijklmon.com', true),
+--     ('joe', '123456', 'joe', 'a', 'ja@yay.com', false),
+--     ('michael', '123456', 'mic', 'b', 'mb@ohno.com', false);

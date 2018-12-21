@@ -20,6 +20,16 @@ beforeEach(async () => {
     photo_url: 'https://www.wow.com/pic.jpg',
     is_admin: false
   });
+
+  await User.addUser({
+    username: 'jeremy',
+    password: '123456',
+    first_name: 'jj',
+    last_name: 'kk',
+    email: 'jjkk@goodboy.com',
+    photo_url: 'https://www.wow.com/pic.jpg',
+    is_admin: false
+  });
 });
 
 describe('POST /users', () => {
@@ -59,6 +69,34 @@ describe('POST /users', () => {
     expect(error.status).toBe(500);
     expect(error).toHaveProperty('message');
   });
+});
+
+describe('GET /users', () => {
+  it('Get all users succeeded', async () => {
+    const response = await request(app).get('/users');
+
+    const { users } = response.body;
+    expect(response.statusCode).toBe(200);
+    expect(users).toHaveLength(2);
+  });
+
+  // it('Add failed, username already exists', async () => {
+  //   const response = await request(app)
+  //     .post('/users')
+  //     .send({
+  //       username: 'bob',
+  //       password: '123456',
+  //       first_name: 'bobbbbby',
+  //       last_name: 'noone',
+  //       email: 'whereami@nowhere.com',
+  //       photo_url: 'https://www.wow.com/pic.jpg',
+  //       is_admin: false
+  //     });
+
+  //   const { error } = response.body;
+  //   expect(error.status).toBe(500);
+  //   expect(error).toHaveProperty('message');
+  // });
 });
 
 afterEach(async function() {

@@ -43,5 +43,24 @@ router.post('/', async (req, res, next) => {
   }
 });
 
+/** GET /users - get all users
+ * output: {users: [{username, first_name, last_name, email}, ...]}
+ **/
+router.get('/', async (req, res, next) => {
+  try {
+    const users = await User.getUsers();
+    return res.json({ users });
+  } catch (err) {
+    // let error;
+    // if (err.message === 'Company not found.') {
+    //   error = new APIError(err.message, 400);
+    // } else {
+    //   error = Error('Server error occured.');
+    // }
+    // return next(error);
+    return next(err);
+  }
+});
+
 // exports router for app.js use
 module.exports = router;

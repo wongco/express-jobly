@@ -60,6 +60,12 @@ class User {
     );
     return user.rows[0];
   }
+
+  /** getUsers -- get all users */
+  static async getUsers() {
+    const user = await db.query(`SELECT * FROM users`);
+    return user.rows;
+  }
 }
 
 module.exports = User;
