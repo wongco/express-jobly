@@ -1,6 +1,7 @@
 const db = require('../db'); //connect to db
 const bcrypt = require('bcrypt');
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
+const { BCRYPT_ROUNDS_OF_WORK } = require('../config');
 
 class User {
   /** addUser -- add a new user
@@ -37,7 +38,7 @@ class User {
     // checks if user exists, if not, throw error
     // await User.getUser(username);
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS_OF_WORK);
     const user = await db.query(
       `INSERT INTO users (
         username,
@@ -113,6 +114,24 @@ class User {
       [username]
     );
     return result.rows[0];
+  }
+
+  /** check User is valid */
+  static async checkValidUser(username, inputPassword) {
+    // check if user exists
+    await User.getUser(username);
+
+    const result = await db.query(
+      'SELECT password FROM users WHERE username = $1',
+      [username]
+    );
+
+    const { password } = result.rows[0];
+
+    const isValid = await bcrypt.compare(inputPassword, password);
+    if (!isValid) {
+      throw new Error('Invalid Password');
+    }
   }
 }
 

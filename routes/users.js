@@ -2,6 +2,8 @@ const express = require('express');
 const router = new express.Router();
 const User = require('../models/User');
 const APIError = require('../models/ApiError');
+const jwt = require('jsonwebtoken');
+const { SECRET } = require('../config');
 
 //json schema dor user post, patch
 const { validate } = require('jsonschema');
@@ -43,8 +45,10 @@ router.post('/', async (req, res, next) => {
   }
 
   try {
-    const user = await User.addUser(req.body);
-    return res.json({ user });
+    await User.addUser(req.body);
+    const { username } = req.body;
+    const token = jwt.sign({ username }, SECRET);
+    return res.json({ token });
   } catch (err) {
     return next(err);
   }
@@ -104,8 +108,8 @@ router.patch('/:username', async (req, res, next) => {
   if (!result.valid) {
     //pass validation errors to error handler
     let message = result.errors.map(err => err.stack);
-    status = 400;
-    error = new APIError(message, status);
+    let status = 400;
+    let error = new APIError(message, status);
     return next(error);
   }
 

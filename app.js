@@ -10,11 +10,13 @@ const morgan = require('morgan');
 app.use(morgan('tiny'));
 
 // import routes
+const authRoutes = require('./routes/auth');
 const companiesRoutes = require('./routes/companies');
 const jobsRoutes = require('./routes/jobs');
 const usersRoutes = require('./routes/users');
 
 // routing control
+app.use(authRoutes);
 app.use('/companies', companiesRoutes);
 app.use('/jobs', jobsRoutes);
 app.use('/users', usersRoutes);

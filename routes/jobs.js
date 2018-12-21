@@ -2,6 +2,7 @@ const express = require('express');
 const router = new express.Router();
 const Job = require('../models/Job');
 const APIError = require('../models/ApiError');
+const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
 
 //json schema for company post
 const { validate } = require('jsonschema');
@@ -63,8 +64,9 @@ input from req.query
  *
  * => {jobs: [jobsData, ...]}
  **/
-router.get('/', async (req, res, next) => {
+router.get('/', ensureLoggedIn, async (req, res, next) => {
   try {
+    console.log('hi');
     const jobs = await Job.getJobs(req.query);
     return res.json({ jobs });
   } catch (error) {

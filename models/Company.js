@@ -133,6 +133,9 @@ class Company {
     }
    */
   static async patchCompany(handle, companyDetails) {
+    // test if company exists, else throw Error
+    await Company.getCompany(handle);
+
     const { query, values } = sqlForPartialUpdate(
       'companies',
       companyDetails,
@@ -159,6 +162,9 @@ class Company {
     }
    */
   static async deleteCompany(handle) {
+    // test if company exists, else throw Error
+    await Company.getCompany(handle);
+
     const company = await db.query(
       `DELETE FROM companies WHERE handle = $1 RETURNING *`,
       [handle]

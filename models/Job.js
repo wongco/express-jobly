@@ -47,6 +47,13 @@ class Job {
         delete jobParams[key];
       }
     }
+
+    for (let key in jobParams) {
+      if (key.startsWith('_')) {
+        delete jobParams[key];
+      }
+    }
+
     let queryString = 'SELECT * FROM jobs';
     const jobsParamsQueryArray = Object.keys(jobParams);
     const values = [];

@@ -46,10 +46,8 @@ describe('POST /users', () => {
         is_admin: false
       });
 
-    const { user } = response.body;
     expect(response.statusCode).toBe(200);
-    expect(user).toHaveProperty('username', 'james');
-    expect(user).not.toHaveProperty('password', '123456');
+    expect(response.body).toHaveProperty('token');
   });
 
   it('Add failed, username already exists', async () => {
@@ -67,6 +65,23 @@ describe('POST /users', () => {
 
     const { error } = response.body;
     expect(error.status).toBe(500);
+    expect(error).toHaveProperty('message');
+  });
+
+  it('Add failed, invalid parameters', async () => {
+    const response = await request(app)
+      .post('/users')
+      .send({
+        username: 'bob',
+        first_name: 'bobbbbby',
+        last_name: 'noone',
+        email: 'whereami@nowhere.com',
+        photo_url: 'https://www.wow.com/pic.jpg',
+        cookies: 'i love cookies'
+      });
+
+    const { error } = response.body;
+    expect(error.status).toBe(400);
     expect(error).toHaveProperty('message');
   });
 });
@@ -119,6 +134,18 @@ describe('PATCH /users/:username', () => {
     expect(error.status).toBe(404);
     expect(error).toHaveProperty('message', 'User does not exist.');
   });
+
+  it('fail to modify user, invalid parameter', async () => {
+    const response = await request(app)
+      .patch('/users/bob')
+      .send({
+        cookies: 'bobby'
+      });
+
+    const { error } = response.body;
+    expect(error.status).toBe(400);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('DELETE /users/:username', () => {
@@ -144,7 +171,7 @@ describe('DELETE /users/:username', () => {
 
 afterEach(async function() {
   // delete any data created by test
-  await db.query('DELETE FROM companies');
+  await db.query('DELETE FROM users');
 });
 
 afterAll(async function() {
