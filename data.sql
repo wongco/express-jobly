@@ -37,9 +37,9 @@ VALUES
 
 CREATE TABLE users
 (
-    id serial PRIMARY KEY,
-    title text NOT NULL,
-    salary float NOT NULL,
+    username text PRIMARY KEY,
+    password text NOT NULL,
+    first_name float NOT NULL,
     equity float NOT NULL CHECK (equity <=1 and equity >=0),
     company_handle text NOT NULL REFERENCES companies ON DELETE CASCADE,
     date_posted date DEFAULT CURRENT_DATE NOT NULL

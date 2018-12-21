@@ -137,9 +137,7 @@ describe('POST /companies', () => {
 describe('GET /companies/:handle', () => {
   it('Getting a company and its related job posts succeeded', async () => {
     const response = await request(app).get(`/companies/roni`);
-    console.log(response);
     const { company } = response.body;
-    console.log(company);
     expect(response.statusCode).toBe(200);
     expect(company).toHaveProperty('handle', 'roni');
     expect(Array.isArray(company.jobs)).toBe(true);
