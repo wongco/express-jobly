@@ -66,7 +66,20 @@ describe('POST /jobs', () => {
         company_handle: 'google'
       });
     const { error } = response.body;
-    expect(error.status).toBe(500);
+    expect(error.status).toBe(400);
+    expect(error).toHaveProperty('message');
+  });
+
+  it('Adding a job failed, missing params', async () => {
+    const response = await request(app)
+      .post('/jobs')
+      .send({
+        title: 'CFO',
+        salary: 100000,
+        equity: 5
+      });
+    const { error } = response.body;
+    expect(error.status).toBe(400);
     expect(error).toHaveProperty('message');
   });
 });
@@ -159,7 +172,20 @@ describe('PATCH /jobs/:id', () => {
     expect(error).toHaveProperty('message');
   });
 
-  // add error handling after json validation for post
+  it('fails to update because of invalid params', async () => {
+    const jobs = await Job.getJobs({});
+    const firstId = jobs[0].id;
+
+    const response = await request(app)
+      .patch(`/jobs/${firstId}`)
+      .send({
+        cookies: 'yes!'
+      });
+
+    const { error } = response.body;
+    expect(error.status).toBe(400);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('DELETE /jobs/:id', () => {

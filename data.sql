@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS jobs;
 DROP TABLE IF EXISTS companies;
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE companies
 (
@@ -37,35 +38,19 @@ VALUES
 
 CREATE TABLE users
 (
-    id serial PRIMARY KEY,
-    title text NOT NULL,
-    salary float NOT NULL,
-    equity float NOT NULL CHECK (equity <=1 and equity >=0),
-    company_handle text NOT NULL REFERENCES companies ON DELETE CASCADE,
-    date_posted date DEFAULT CURRENT_DATE NOT NULL
+    username text PRIMARY KEY,
+    password text NOT NULL,
+    first_name text NOT NULL,
+    last_name text NOT NULL,
+    email text NOT NULL UNIQUE,
+    photo_url text,
+    is_admin BOOLEAN DEFAULT FALSE NOT NULL
 );
 
--- username: a primary key that is text
--- password: a non-nullable column
--- first_name: a non-nullable column
--- last_name: a non-nullable column
--- email: a non-nullable column that is and unique
--- photo_url: a column that is text
--- is_admin: a column that is not null, boolean and defaults to false
-
-
-
-
-
-
-
-
-
-
-INSERT INTO jobs
-    (title, salary, equity, company_handle)
+INSERT INTO users
+    (username, password, first_name, last_name, email, is_admin)
 VALUES
-    ('SE', 1000000, 0.5, 'apple' ),
-    ('accounting', 100, 0.1, 'ibm' ),
-    ('IT', 148598, 0.2, 'google' ),
-    ('HR', 3740, 0.01, 'roni' );
+    ('roni', '123456', 'roni', 'h', 'rh@abcdefghijklmon.com', true),
+    ('gin', '123456', 'gin', 'w', 'gw@abcdefghijklmon.com', true),
+    ('joe', '123456', 'joe', 'a', 'ja@yay.com', false),
+    ('michael', '123456', 'mic', 'b', 'mb@ohno.com', false);

@@ -11,9 +11,13 @@ app.use(morgan('tiny'));
 
 // import routes
 const companiesRoutes = require('./routes/companies');
-app.use('/companies', companiesRoutes);
 const jobsRoutes = require('./routes/jobs');
+const usersRoutes = require('./routes/users');
+
+// routing control
+app.use('/companies', companiesRoutes);
 app.use('/jobs', jobsRoutes);
+app.use('/users', usersRoutes);
 
 /** 404 handler */
 app.use(function(req, res, next) {

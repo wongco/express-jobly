@@ -3,6 +3,11 @@ const router = new express.Router();
 const Job = require('../models/Job');
 const APIError = require('../models/ApiError');
 
+//json schema for company post
+const { validate } = require('jsonschema');
+const jobPostSchema = require('../schemas/jobPostSchema.json');
+const jobPatchSchema = require('../schemas/jobPatchSchema.json');
+
 /** POST /jobs - add new job
  * input:
 {
@@ -24,6 +29,16 @@ const APIError = require('../models/ApiError');
 }
  **/
 router.post('/', async (req, res, next) => {
+  const result = validate(req.body, jobPostSchema);
+
+  if (!result.valid) {
+    // pass validation errors to error handler
+    let message = result.errors.map(error => error.stack);
+    let status = 400;
+    let error = new APIError(message, status);
+    return next(error);
+  }
+
   try {
     const job = await Job.addJob(req.body);
     return res.json({ job });
@@ -84,6 +99,17 @@ router.get('/:id', async (req, res, next) => {
  * => {jobs: {jobData}}
  **/
 router.patch('/:id', async (req, res, next) => {
+  const result = validate(req.body, jobPatchSchema);
+
+  if (!result.valid) {
+    console.log('hsodjldskjhflks');
+    // pass validation errors to error handler
+    let message = result.errors.map(error => error.stack);
+    let status = 400;
+    let error = new APIError(message, status);
+    return next(error);
+  }
+
   try {
     const { id } = req.params;
     const job = await Job.patchJob(+id, req.body);

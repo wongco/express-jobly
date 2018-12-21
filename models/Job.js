@@ -3,7 +3,7 @@ const Company = require('./Company');
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Job {
-  /** addAJob -- add a new job posting
+  /** addJob -- add a new job posting
   input: 
     {
       title: "CEO",
