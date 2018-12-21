@@ -66,6 +66,54 @@ class User {
     const user = await db.query(`SELECT * FROM users`);
     return user.rows;
   }
+
+  /** getUser -- get specific user */
+  static async getUser(username) {
+    const results = await db.query(
+      'SELECT username, first_name, last_name, email, photo_url FROM users WHERE username = $1',
+      [username]
+    );
+
+    // if user cannot be found, throw error
+    if (results.rows.length === 0) {
+      throw new Error('User does not exist.');
+    }
+    return results.rows[0];
+  }
+
+  /** patchUser -- update specific user details */
+  static async patchUser(username, userDetails) {
+    // check if user exists
+    await User.getUser(username);
+
+    const { query, values } = sqlForPartialUpdate(
+      'users',
+      userDetails,
+      'username',
+      username
+    );
+
+    const result = await db.query(query, values);
+    const user = result.rows[0];
+    return {
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      photo_url: user.photo_url
+    };
+  }
+
+  /** deleteUser -- delete a specific user */
+  static async deleteUser(username, userDetails) {
+    // check if user exists
+    await User.getUser(username);
+
+    const result = await db.query(
+      `DELETE FROM users WHERE username = $1 RETURNING *`,
+      [username]
+    );
+    return result.rows[0];
+  }
 }
 
 module.exports = User;

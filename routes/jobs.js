@@ -102,7 +102,6 @@ router.patch('/:id', async (req, res, next) => {
   const result = validate(req.body, jobPatchSchema);
 
   if (!result.valid) {
-    console.log('hsodjldskjhflks');
     // pass validation errors to error handler
     let message = result.errors.map(error => error.stack);
     let status = 400;

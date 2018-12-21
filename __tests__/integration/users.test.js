@@ -79,24 +79,67 @@ describe('GET /users', () => {
     expect(response.statusCode).toBe(200);
     expect(users).toHaveLength(2);
   });
+});
 
-  // it('Add failed, username already exists', async () => {
-  //   const response = await request(app)
-  //     .post('/users')
-  //     .send({
-  //       username: 'bob',
-  //       password: '123456',
-  //       first_name: 'bobbbbby',
-  //       last_name: 'noone',
-  //       email: 'whereami@nowhere.com',
-  //       photo_url: 'https://www.wow.com/pic.jpg',
-  //       is_admin: false
-  //     });
+describe('GET /users/:username', () => {
+  it('Get a specific user succeeded', async () => {
+    const response = await request(app).get('/users/bob');
 
-  //   const { error } = response.body;
-  //   expect(error.status).toBe(500);
-  //   expect(error).toHaveProperty('message');
-  // });
+    const { user } = response.body;
+    expect(response.statusCode).toBe(200);
+    expect(user).toHaveProperty('username', 'bob');
+  });
+
+  it('Cannot find requested user', async () => {
+    const response = await request(app).get('/users/jamie');
+
+    const { error } = response.body;
+    expect(error.status).toBe(404);
+    expect(error).toHaveProperty('message', 'User does not exist.');
+  });
+});
+
+describe('PATCH /users/:username', () => {
+  it('update a specific user succeeded', async () => {
+    const response = await request(app)
+      .patch('/users/bob')
+      .send({
+        first_name: 'bobby'
+      });
+
+    const { user } = response.body;
+    expect(response.statusCode).toBe(200);
+    expect(user).toHaveProperty('first_name', 'bobby');
+  });
+
+  it('Cannot find requested user', async () => {
+    const response = await request(app).patch('/users/jamie');
+
+    const { error } = response.body;
+    expect(error.status).toBe(404);
+    expect(error).toHaveProperty('message', 'User does not exist.');
+  });
+});
+
+describe('DELETE /users/:username', () => {
+  it('deleted a specific user successfully', async () => {
+    const response = await request(app).delete('/users/bob');
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toHaveProperty('message', 'User deleted');
+
+    // user no longer exists
+    const response2 = await request(app).get(`/users/bob`);
+    expect(response2.statusCode).toBe(404);
+  });
+
+  it('Cannot find requested user', async () => {
+    const response = await request(app).delete('/users/jimmmmmmt');
+
+    const { error } = response.body;
+    expect(error.status).toBe(404);
+    expect(error).toHaveProperty('message', 'User does not exist.');
+  });
 });
 
 afterEach(async function() {
