@@ -2,8 +2,8 @@
 
 require('dotenv').config();
 
-const SECRET = process.env.SECRET_KEY || 'test';
-const BCRYPT_ROUNDS_OF_WORK = process.env.BCRYPT_ROUNDS_OF_WORK || 12;
+const SECRET = process.env.SECRET_KEY || 'test-use-env-key-in-production';
+const BCRYPT_ROUNDS_OF_WORK = +process.env.BCRYPT_ROUNDS_OF_WORK || 12;
 const PORT = +process.env.PORT || 3000;
 
 // database is:

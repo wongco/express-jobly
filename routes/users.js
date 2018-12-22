@@ -48,12 +48,19 @@ router.post('/', async (req, res, next) => {
   }
 
   try {
+    // if user already exists, will throw error
     await User.addUser(req.body);
     const { username } = req.body;
     const token = jwt.sign({ username }, SECRET);
     return res.json({ token });
   } catch (err) {
-    return next(err);
+    let error;
+    if (err.message === 'User already exists.') {
+      error = new APIError('Username is invalid. Choose a new username.', 400);
+    } else {
+      error = Error('Server error occured.');
+    }
+    return next(error);
   }
 });
 
@@ -65,13 +72,6 @@ router.get('/', async (req, res, next) => {
     const users = await User.getUsers();
     return res.json({ users });
   } catch (err) {
-    // let error;
-    // if (err.message === 'Company not found.') {
-    //   error = new APIError(err.message, 400);
-    // } else {
-    //   error = Error('Server error occured.');
-    // }
-    // return next(error);
     return next(err);
   }
 });

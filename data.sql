@@ -14,10 +14,10 @@ CREATE TABLE companies
 INSERT INTO companies
     (handle, name, num_employees)
 VALUES
-    ('apple', 'Apple Inc', 300),
-    ('ibm', 'IBM', 100),
-    ('google', 'Google', 1000),
-    ('roni', 'Roni Inc', 150);
+    ('apple', 'Apple Inc', 11000),
+    ('ibm', 'IBM', 100000),
+    ('google', 'Google Inc', 10000),
+    ('uber', 'Uber Inc', 15000);
 
 CREATE TABLE jobs
 (
@@ -31,10 +31,10 @@ CREATE TABLE jobs
 INSERT INTO jobs
     (title, salary, equity, company_handle)
 VALUES
-    ('SE', 1000000, 0.5, 'apple' ),
-    ('accounting', 100, 0.1, 'ibm' ),
-    ('IT', 148598, 0.2, 'google' ),
-    ('HR', 3740, 0.01, 'roni' );
+    ('SE', 100000, 0.01, 'apple' ),
+    ('Accounting', 80000, 0.001, 'ibm' ),
+    ('IT', 100000, 0.01, 'google' ),
+    ('HR', 70000, 0.01, 'uber' );
 
 CREATE TABLE users
 (
@@ -49,7 +49,7 @@ CREATE TABLE users
 INSERT INTO users
     (username, password, first_name, last_name, email, is_admin)
 VALUES
-    ('roni', '123456', 'roni', 'h', 'rh@abcdefghijklmon.com', true),
-    ('gin', '123456', 'gin', 'w', 'gw@abcdefghijklmon.com', true),
-    ('joe', '123456', 'joe', 'a', 'ja@yay.com', false),
-    ('michael', '123456', 'mic', 'b', 'mb@ohno.com', false);
+    ('jimmy', '123456', 'jimmy', 'hands', 'jhands@favcomp.com', true),
+    ('greg', '123456', 'greg', 'olson', 'golson@tky.net', true),
+    ('karen', '123456', 'karen', 'alma', 'katt2@aololdtimers.com', false),
+    ('michael', '123456', 'mitch', 'brenson', 'mbrenboy@yesmail.com', false);

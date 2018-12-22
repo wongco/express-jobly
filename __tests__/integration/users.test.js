@@ -83,7 +83,7 @@ describe('POST /users', () => {
       });
 
     const { error } = response.body;
-    expect(error.status).toBe(500);
+    expect(error.status).toBe(400);
     expect(error).toHaveProperty('message');
   });
 

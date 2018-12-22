@@ -5,26 +5,8 @@ const { BCRYPT_ROUNDS_OF_WORK } = require('../config');
 
 class User {
   /** addUser -- add a new user
-  input: 
-  {
-    username: 'roni,
-    password: '123456',
-    first_name: 'roni',
-    last_name: 'h,
-    email: 'rh@abcdefg.com,
-    photo_url: 'https://www.wow.com/pic.jpg,
-    is_admin: true
-  } =>
-  output:
-  {
-    username: 'roni',
-    password: 'ldask;fsadkfdfsafjljf;',
-    first_name: 'roni',
-    last_name: 'h,
-    email: 'rh@abcdefg.com,
-    photo_url: 'https://www.wow.com/pic.jpg,
-    is_admin: true
-  }
+  input: { username, password, first_name, last_name, email, photo_url, is_admin }
+  output: { username, password, first_name, last_name, email, photo_url, is_admin }
    */
   static async addUser({
     username,
@@ -36,7 +18,14 @@ class User {
     is_admin
   }) {
     // checks if user exists, if not, throw error
-    // await User.getUser(username);
+    const results = await db.query('SELECT * FROM users WHERE username = $1', [
+      username
+    ]);
+
+    // if user is already found, throw error
+    if (results.rows.length > 0) {
+      throw new Error('User already exists.');
+    }
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS_OF_WORK);
     const user = await db.query(

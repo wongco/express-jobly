@@ -7,9 +7,8 @@ const User = require('../models/User');
 function ensureLoggedIn(req, res, next) {
   try {
     const token = req.body._token || req.query._token;
-    let { username } = jwt.verify(token, SECRET);
-    // put username on request as a convenience for routes
-    req.username = username;
+    // verifies token and throws error if invalid
+    jwt.verify(token, SECRET);
     return next();
   } catch (err) {
     return next({ status: 401, message: 'Unauthorized' });
@@ -21,29 +20,26 @@ function ensureLoggedIn(req, res, next) {
 function ensureCorrectUser(req, res, next) {
   try {
     const token = req.body._token || req.query._token;
-    const payload = jwt.verify(token, SECRET);
-    if (payload.username === req.params.username) {
-      // put username on request as a convenience for routes
-      req.username = payload.username;
+    // verifies token and throws error if invalid
+    const { username } = jwt.verify(token, SECRET);
+    if (username === req.params.username) {
       return next();
-    } else {
-      throw new Error();
     }
+    throw new Error();
   } catch (err) {
     return next({ status: 401, message: 'Unauthorized' });
   }
 }
 
-/** Middleware: Requires :username is logged in. */
+/** Middleware: Requires admin is logged in. */
 
 async function ensureAdminUser(req, res, next) {
   try {
     const token = req.body._token || req.query._token;
+    // verifies token and throws error if invalid
     const { username } = jwt.verify(token, SECRET);
     // checks if user is admin or throws error
     await User.isUserAdmin(username);
-    // put username on request as a convenience for routes
-    req.username = username;
     return next();
   } catch (err) {
     return next({ status: 401, message: 'Unauthorized' });
