@@ -1,8 +1,14 @@
 const express = require('express');
 const router = new express.Router();
+
+// import model classes
 const Job = require('../models/Job');
 const APIError = require('../models/ApiError');
+
+// import middleware
 const { ensureLoggedIn, ensureAdminUser } = require('../middleware/auth');
+
+// import helper
 const removeToken = require('../helpers/removeToken');
 
 //json schema for company post
@@ -42,7 +48,8 @@ router.post('/', ensureAdminUser, async (req, res, next) => {
 });
 
 /** GET /jobs - get detail of multiple jobs
- * input: optional - { search, min_salary, min_equity }
+ * input: _token (queryString)
+ *      optional - { search, min_salary, min_equity }
  * output: { jobs: [ {jobDetail }, ...] }
  **/
 router.get('/', ensureLoggedIn, async (req, res, next) => {
@@ -55,6 +62,7 @@ router.get('/', ensureLoggedIn, async (req, res, next) => {
 });
 
 /** GET /jobs/:id - get detail of specific job
+ * input: _token (queryString)
  * output: { jobs: { jobData } }
  **/
 router.get('/:id', ensureLoggedIn, async (req, res, next) => {
@@ -76,6 +84,7 @@ router.get('/:id', ensureLoggedIn, async (req, res, next) => {
 });
 
 /** PATCH /jobs/:id - get detail of specific job
+ * input: { _token }
  * output: { jobs: { jobData } }
  **/
 router.patch('/:id', ensureAdminUser, async (req, res, next) => {
@@ -111,6 +120,7 @@ router.patch('/:id', ensureAdminUser, async (req, res, next) => {
 });
 
 /** DELETE /jobs/:id - delete specific job
+ * input: { _token }
  * output: {message: "Job deleted"}
  **/
 router.delete('/:id', ensureAdminUser, async (req, res, next) => {

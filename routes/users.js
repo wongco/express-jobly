@@ -1,41 +1,29 @@
 const express = require('express');
-const router = new express.Router();
-const User = require('../models/User');
-const APIError = require('../models/ApiError');
 const jwt = require('jsonwebtoken');
+const router = new express.Router();
+
+// import config info
 const { SECRET } = require('../config');
 
-const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
+// import model classes
+const User = require('../models/User');
+const APIError = require('../models/ApiError');
+
+// import middleware
+const { ensureCorrectUser } = require('../middleware/auth');
+
+// import helper
 const removeToken = require('../helpers/removeToken');
 
 //json schema for user post, patch
 const { validate } = require('jsonschema');
 const userPostSchema = require('../schemas/userPostSchema.json');
 const userPatchSchema = require('../schemas/userPatchSchema.json');
+
 /** POST /users - add new user
- * input:
-{
-  username: 'roni,
-  password: '123456',
-  first_name: 'roni',
-  last_name: 'h,
-  email: 'rh@abcdefg.com,
-  photo_url: 'https://www.wow.com/pic.jpg,
-  is_admin: true
-}
- * output:
-{
-  "user": {
-    username: 'roni,
-    password: '123456',
-    first_name: 'roni',
-    last_name: 'h,
-    email: 'rh@abcdefg.com,
-    photo_url: 'https://www.wow.com/pic.jpg,
-    is_admin: true
-}
-}
- **/
+  input: { username, password, first_name, last_name, email, photo_url, is_admin }
+  output: { username, password, first_name, last_name, email, photo_url, is_admin }
+ */
 router.post('/', async (req, res, next) => {
   const result = validate(req.body, userPostSchema);
 
@@ -77,6 +65,7 @@ router.get('/', async (req, res, next) => {
 });
 
 /** GET /users/:username - get specific user details
+ * input: _token (queryString)
  * output: {user: {username, first_name, last_name, email, photo_url}}
  **/
 router.get('/:username', ensureCorrectUser, async (req, res, next) => {
@@ -92,19 +81,12 @@ router.get('/:username', ensureCorrectUser, async (req, res, next) => {
       error = Error('Server error occured.');
     }
     return next(error);
-    // return next(err);
   }
 });
 
 /** PATCH /users/:username - should update user's details
- * input:
-{
-  first_name: 'roni',
-  last_name: 'h,
-  email: 'rh@abcdefg.com,
-  photo_url: 'https://www.wow.com/pic.jpg,
-}
- * output: {user: {username, first_name, last_name, email, photo_url}}
+ * input: { _token, first_name, last_name, email, photo_url }
+ * output: { user: { username, first_name, last_name, email, photo_url } }
  **/
 router.patch('/:username', ensureCorrectUser, async (req, res, next) => {
   const result = validate(req.body, userPatchSchema);
@@ -116,7 +98,6 @@ router.patch('/:username', ensureCorrectUser, async (req, res, next) => {
     return next(error);
   }
 
-  // after schema check, remove token
   removeToken(req.body);
 
   try {
@@ -135,7 +116,7 @@ router.patch('/:username', ensureCorrectUser, async (req, res, next) => {
 });
 
 /** DELETE /users/:username - should delete a user
-
+ * input: { _token }
  * output: { message: "User deleted" }
  **/
 router.delete('/:username', ensureCorrectUser, async (req, res, next) => {

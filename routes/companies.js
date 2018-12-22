@@ -1,9 +1,15 @@
 const express = require('express');
 const router = new express.Router();
+
+// import model classes
 const Company = require('../models/Company');
 const Job = require('../models/Job');
 const APIError = require('../models/ApiError');
+
+// import middlware
 const { ensureLoggedIn, ensureAdminUser } = require('../middleware/auth');
+
+// import helper
 const removeToken = require('../helpers/removeToken');
 
 //json schema for company post
@@ -12,14 +18,9 @@ const companyPostSchema = require('../schemas/companyPostSchema.json');
 const companyPatchSchema = require('../schemas/companyPatchSchema.json');
 
 /** GET /companies - get detail of companies
- * request query input parameters (optional):
- * {
- *   search,
- *   min_employees,
- *   max_employees
- * }
- *
- * => {companies: [companyData, ...]}
+ * input: _token (queryString)
+ *    Note: optional - { search, min_employees, max_employees }
+ * output: { companies: [ { companyData }, ...] }
  **/
 router.get('/', ensureLoggedIn, async (req, res, next) => {
   try {
@@ -37,23 +38,14 @@ router.get('/', ensureLoggedIn, async (req, res, next) => {
 });
 
 /** POST /companies - add company
- * request body input parameters (employees, desc, logo_url optional):
- {
-   "handle": "apple",
-   "name": "Apple Inc",
-   "num_employees": 300,
-   "description": "Amazing Cooking",
-   "logo_url": "https://www.amazingcooking.com/logo.png"
- }
- *
- * => {company: {companyData}}
+ * input: { _token, handle, name, num_employees, description, logo_url }
+ *    note: num_employees, description, logo_url optional
+ * output: { company: { companyData } }
  **/
 router.post('/', ensureAdminUser, async (req, res, next) => {
   const result = validate(req.body, companyPostSchema);
 
   if (!result.valid) {
-    // pass validation errors to error handler
-    //  (the "stack" key is generally the most useful)
     let message = result.errors.map(error => error.stack);
     let status = 400;
     let error = new APIError(message, status);
@@ -77,8 +69,8 @@ router.post('/', ensureAdminUser, async (req, res, next) => {
 });
 
 /** GET /companies/:handle - get detail of specific company
- *
- * => {company: { companyData,..., jobs: [{jobDetail}, ...] } }
+ * input: _token (queryString)
+ * output: { company: { companyData,..., jobs: [ { jobDetail }, ...] } }
  **/
 router.get('/:handle', ensureLoggedIn, async (req, res, next) => {
   try {
@@ -100,14 +92,8 @@ router.get('/:handle', ensureLoggedIn, async (req, res, next) => {
 });
 
 /** PATCH /companies/:handle - update details of company
- request body input:
- {
-   "name": "Apple Inc",
-   "num_employees": 300,
-   "description": "Amazing Cooking",
-   "logo_url": "https://www.amazingcooking.com/logo.png"
- }
- output: => {company: {companyData}}
+ * input: { _token, name, num_employees, description, logo_url }
+ * output: { company: { companyData } }
  **/
 router.patch('/:handle', ensureAdminUser, async (req, res, next) => {
   const result = validate(req.body, companyPatchSchema);
@@ -139,8 +125,9 @@ router.patch('/:handle', ensureAdminUser, async (req, res, next) => {
 });
 
 /** DELETE /companies/:handle - delete company
-input: handle (parameter)
- **/
+ * input: { _token }
+ * output: { message: 'Company deleted' }
+ */
 router.delete('/:handle', ensureAdminUser, async (req, res, next) => {
   try {
     const handle = req.params.handle;

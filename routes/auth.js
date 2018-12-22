@@ -5,7 +5,9 @@ const jwt = require('jsonwebtoken');
 const { SECRET } = require('../config');
 const User = require('../models/User');
 
-// route for user login
+/** POST /companies - add company
+ * output: { token: _token }
+ **/
 router.post('/login', async (req, res, next) => {
   try {
     const { username, password } = req.body;
