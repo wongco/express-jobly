@@ -7,7 +7,7 @@ beforeEach(async () => {
   // delete any data created by test
   await db.query('DELETE FROM users');
 
-  const user = await User.addUser({
+  await User.addUser({
     username: 'bob',
     password: '123456',
     first_name: 'bobby',
@@ -51,7 +51,7 @@ describe('addUser method', async () => {
 
   it('adding user failed due to existing username', async () => {
     try {
-      const user = await User.addUser({
+      await User.addUser({
         username: 'bob',
         password: '123456',
         first_name: 'bobby',
@@ -174,7 +174,7 @@ describe('isUserAdmin method', async () => {
   });
 
   it('fails because user is not admin', async () => {
-    const user2 = await User.addUser({
+    await User.addUser({
       username: 'jeremy',
       password: '123456',
       first_name: 'jj',
