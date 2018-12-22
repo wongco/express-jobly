@@ -5,9 +5,11 @@ const app = express();
 app.use(express.json()); // middleware to parse json, so express can read json
 const APIError = require('./models/ApiError');
 
-// add logging system
-const morgan = require('morgan');
-app.use(morgan('tiny'));
+// don't provide http logging during automated tests
+if (process.env.NODE_ENV !== 'test') {
+  const morgan = require('morgan');
+  app.use(morgan('tiny'));
+}
 
 // import routes
 const authRoutes = require('./routes/auth');

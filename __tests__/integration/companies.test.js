@@ -11,7 +11,7 @@ const app = require('../../app');
 const db = require('../../db');
 
 let bobToken;
-
+let jeremyToken;
 beforeEach(async () => {
   // delete any data created by prior tests
   await db.query('DELETE FROM companies');
@@ -23,6 +23,16 @@ beforeEach(async () => {
     first_name: 'bobby',
     last_name: 'wow',
     email: 'bobbbby@goodboy.com',
+    photo_url: 'https://www.wow.com/pic.jpg',
+    is_admin: true
+  });
+
+  await User.addUser({
+    username: 'jeremy',
+    password: '123456',
+    first_name: 'jeremy',
+    last_name: 'doan',
+    email: 'doanboy@yes.com',
     photo_url: 'https://www.wow.com/pic.jpg',
     is_admin: false
   });
@@ -60,7 +70,15 @@ beforeEach(async () => {
       password: '123456'
     });
 
+  const jeremyResponse = await request(app)
+    .post('/login')
+    .send({
+      username: 'jeremy',
+      password: '123456'
+    });
+
   bobToken = bobResponse.body.token;
+  jeremyToken = jeremyResponse.body.token;
 });
 
 describe('GET /companies', () => {
@@ -114,6 +132,18 @@ describe('GET /companies', () => {
       'Check that your parameters are correct.'
     );
   });
+
+  it('No authentication results in error', async () => {
+    const response = await request(app)
+      .get(`/companies`)
+      .query({
+        min_employees: 30,
+        max_employees: 10
+      });
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('POST /companies', () => {
@@ -121,6 +151,7 @@ describe('POST /companies', () => {
     const response = await request(app)
       .post(`/companies`)
       .send({
+        _token: bobToken,
         handle: 'apple',
         name: 'Apple Inc',
         num_employees: 300,
@@ -137,6 +168,7 @@ describe('POST /companies', () => {
     const response = await request(app)
       .post(`/companies`)
       .send({
+        _token: bobToken,
         handle: 'roni',
         name: 'Roni Inc',
         num_employees: 5
@@ -150,13 +182,28 @@ describe('POST /companies', () => {
     const response = await request(app)
       .post(`/companies`)
       .send({
+        _token: bobToken,
         name: 'Roni Inc',
         num_employees: 5
       });
 
     const { error } = response.body;
     expect(error.status).toBe(400);
-    // expect(error.message).toEqual('Server error occured.'); json schema handles mpw
+    expect(error).toHaveProperty('message');
+  });
+
+  it('Unauthorized to add company', async () => {
+    const response = await request(app)
+      .post(`/companies`)
+      .send({
+        _token: jeremyToken,
+        name: 'Roni Inc',
+        num_employees: 5
+      });
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
   });
 });
 
@@ -179,6 +226,14 @@ describe('GET /companies/:handle', () => {
     expect(response.statusCode).toBe(404);
     expect(response.body.error.message).toEqual('Company not found.');
   });
+
+  it('No authentication results in error', async () => {
+    const response = await request(app).get(`/companies/gin`);
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('PATCH /companies/:handle', () => {
@@ -186,6 +241,7 @@ describe('PATCH /companies/:handle', () => {
     const response = await request(app)
       .patch(`/companies/roni`)
       .send({
+        _token: bobToken,
         name: 'RoniTechCorp',
         num_employees: 1000,
         description: 'Roni Tech 2.0',
@@ -198,24 +254,44 @@ describe('PATCH /companies/:handle', () => {
     expect(company).toHaveProperty('num_employees', 1000);
   });
 
-  it('fails to update non existent company', async () => {
+  it('Fails to update non existent company', async () => {
     const response = await request(app)
       .patch(`/companies/cranky`)
       .send({
+        _token: bobToken,
         name: 'Wow',
         num_employees: 10,
         description: 'What 2.0',
         logo_url: 'https://www.iamlost.com/no.jpg'
       });
 
-    expect(response.statusCode).toBe(404);
-    expect(response.body.error.message).toEqual('Company not found.');
+    const { error } = response.body;
+    expect(error.status).toBe(404);
+    expect(error).toHaveProperty('message');
+  });
+
+  it('Unauthorized to update company', async () => {
+    const response = await request(app)
+      .patch(`/companies/roni`)
+      .send({
+        _token: jeremyToken,
+        name: 'Wow',
+        num_employees: 10,
+        description: 'What 2.0',
+        logo_url: 'https://www.iamlost.com/no.jpg'
+      });
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
   });
 });
 
 describe('DELETE /companies/:handle', () => {
-  it('deleting a company succeeded', async () => {
-    const response = await request(app).delete(`/companies/google`);
+  it('Deleting a company succeeded', async () => {
+    const response = await request(app)
+      .delete(`/companies/google`)
+      .send({ _token: bobToken });
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty('message', 'Company deleted');
@@ -227,11 +303,23 @@ describe('DELETE /companies/:handle', () => {
     expect(response2.statusCode).toBe(404);
   });
 
-  it('deleting a company failed', async () => {
-    const response = await request(app).delete(`/companies/whowowwhen`);
+  it('Deleting a company failed', async () => {
+    const response = await request(app)
+      .delete(`/companies/whowowwhen`)
+      .send({ _token: bobToken });
 
     expect(response.statusCode).toBe(404);
     expect(response.body.error.message).toEqual('Company not found.');
+  });
+
+  it('Unauthorized to delete company', async () => {
+    const response = await request(app)
+      .delete(`/companies/whowowwhen`)
+      .send({ _token: jeremyToken });
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
   });
 });
 

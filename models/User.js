@@ -133,6 +133,23 @@ class User {
       throw new Error('Invalid Password');
     }
   }
+
+  /** check User is Admin */
+  static async isUserAdmin(username) {
+    // check if user exists
+    await User.getUser(username);
+
+    const result = await db.query(
+      'SELECT is_admin FROM users WHERE username = $1',
+      [username]
+    );
+
+    const { is_admin } = result.rows[0];
+
+    if (!is_admin) {
+      throw new Error('Not Admin');
+    }
+  }
 }
 
 module.exports = User;

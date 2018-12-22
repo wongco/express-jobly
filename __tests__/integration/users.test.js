@@ -9,6 +9,7 @@ const app = require('../../app');
 const db = require('../../db');
 
 let bobToken;
+let jeremyToken;
 beforeEach(async () => {
   // delete any data created by prior tests
   await db.query('DELETE FROM users');
@@ -39,7 +40,15 @@ beforeEach(async () => {
       password: '123456'
     });
 
+  const jeremyResponse = await request(app)
+    .post('/login')
+    .send({
+      username: 'jeremy',
+      password: '123456'
+    });
+
   bobToken = bobResponse.body.token;
+  jeremyToken = jeremyResponse.body.token;
 });
 
 describe('POST /users', () => {
@@ -124,6 +133,16 @@ describe('GET /users/:username', () => {
     expect(error.status).toBe(401);
     expect(error).toHaveProperty('message');
   });
+
+  it('Unauthorized to access user details', async () => {
+    const response = await request(app)
+      .get('/users/bob')
+      .query({ _token: jeremyToken });
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('PATCH /users/:username', () => {
@@ -160,6 +179,19 @@ describe('PATCH /users/:username', () => {
     expect(error.status).toBe(400);
     expect(error).toHaveProperty('message');
   });
+
+  it('unauthorized to modify user details', async () => {
+    const response = await request(app)
+      .patch('/users/bob')
+      .send({
+        _token: jeremyToken,
+        first_name: 'bubby'
+      });
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('DELETE /users/:username', () => {
@@ -178,6 +210,16 @@ describe('DELETE /users/:username', () => {
 
   it('Cannot find requested user', async () => {
     const response = await request(app).delete('/users/jimmmmmmt');
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
+  });
+
+  it('unauthorized to delete user', async () => {
+    const response = await request(app)
+      .delete('/users/bob')
+      .send({ _token: jeremyToken });
 
     const { error } = response.body;
     expect(error.status).toBe(401);

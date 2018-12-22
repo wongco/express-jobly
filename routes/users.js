@@ -8,7 +8,7 @@ const { SECRET } = require('../config');
 const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
 const removeToken = require('../helpers/removeToken');
 
-//json schema dor user post, patch
+//json schema for user post, patch
 const { validate } = require('jsonschema');
 const userPostSchema = require('../schemas/userPostSchema.json');
 const userPatchSchema = require('../schemas/userPatchSchema.json');

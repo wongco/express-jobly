@@ -3,7 +3,8 @@ const router = new express.Router();
 const Company = require('../models/Company');
 const Job = require('../models/Job');
 const APIError = require('../models/ApiError');
-const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
+const { ensureLoggedIn, ensureAdminUser } = require('../middleware/auth');
+const removeToken = require('../helpers/removeToken');
 
 //json schema for company post
 const { validate } = require('jsonschema');
@@ -47,7 +48,7 @@ router.get('/', ensureLoggedIn, async (req, res, next) => {
  *
  * => {company: {companyData}}
  **/
-router.post('/', async (req, res, next) => {
+router.post('/', ensureAdminUser, async (req, res, next) => {
   const result = validate(req.body, companyPostSchema);
 
   if (!result.valid) {
@@ -58,6 +59,8 @@ router.post('/', async (req, res, next) => {
     let error = new APIError(message, status);
     return next(error);
   }
+
+  removeToken(req.body);
 
   try {
     const company = await Company.addCompany(req.body);
@@ -75,14 +78,14 @@ router.post('/', async (req, res, next) => {
 
 /** GET /companies/:handle - get detail of specific company
  *
- * => {company: {companyData}}
+ * => {company: { companyData,..., jobs: [{jobDetail}, ...] } }
  **/
 router.get('/:handle', ensureLoggedIn, async (req, res, next) => {
   try {
-    const handle = req.params.handle;
+    const { handle } = req.params;
+
     const company = await Company.getCompany(handle);
-    const companyHandle = company.handle;
-    const jobs = await Job.getJobs({ search: companyHandle });
+    const jobs = await Job.getJobs({ search: company.handle });
     company.jobs = jobs;
     return res.json({ company });
   } catch (err) {
@@ -106,7 +109,7 @@ router.get('/:handle', ensureLoggedIn, async (req, res, next) => {
  }
  output: => {company: {companyData}}
  **/
-router.patch('/:handle', async (req, res, next) => {
+router.patch('/:handle', ensureAdminUser, async (req, res, next) => {
   const result = validate(req.body, companyPatchSchema);
 
   if (!result.valid) {
@@ -117,6 +120,8 @@ router.patch('/:handle', async (req, res, next) => {
     let error = new APIError(message, status);
     return next(error);
   }
+
+  removeToken();
 
   try {
     const handle = req.params.handle;
@@ -136,7 +141,7 @@ router.patch('/:handle', async (req, res, next) => {
 /** DELETE /companies/:handle - delete company
 input: handle (parameter)
  **/
-router.delete('/:handle', async (req, res, next) => {
+router.delete('/:handle', ensureAdminUser, async (req, res, next) => {
   try {
     const handle = req.params.handle;
     await Company.deleteCompany(handle);

@@ -6,6 +6,17 @@
   "title": "The Root Schema",
   "additionalProperties": false,
   "properties": {
+    "_token": {
+      "$id": "#/properties/_token",
+      "type": "string",
+      "title": "The _token Schema",
+      "default": "",
+      "examples": [
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvbmkiLCJpYXQiOjE1NDU0MjI0ODd9.-oukEOKh5iIEH650cqh8xn1QFbSkwE9gS3sHEsRRLHg"
+      ],
+      "minLength": 1,
+      "pattern": "^(.*)$"
+    },
     "name": {
       "$id": "#/properties/name",
       "type": "string",

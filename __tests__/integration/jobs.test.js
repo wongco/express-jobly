@@ -11,6 +11,7 @@ const app = require('../../app');
 const db = require('../../db');
 
 let bobToken;
+let jeremyToken;
 beforeEach(async () => {
   // delete any data created by prior tests
   await db.query('DELETE FROM companies');
@@ -22,6 +23,16 @@ beforeEach(async () => {
     first_name: 'bobby',
     last_name: 'wow',
     email: 'bobbbby@goodboy.com',
+    photo_url: 'https://www.wow.com/pic.jpg',
+    is_admin: true
+  });
+
+  await User.addUser({
+    username: 'jimmy',
+    password: '123456',
+    first_name: 'jimmy',
+    last_name: 'doan',
+    email: 'doanboy@yes.com',
     photo_url: 'https://www.wow.com/pic.jpg',
     is_admin: false
   });
@@ -60,7 +71,15 @@ beforeEach(async () => {
       password: '123456'
     });
 
+  const jeremyResponse = await request(app)
+    .post('/login')
+    .send({
+      username: 'jeremy',
+      password: '123456'
+    });
+
   bobToken = bobResponse.body.token;
+  jeremyToken = jeremyResponse.body.token;
 });
 
 describe('POST /jobs', () => {
@@ -68,6 +87,7 @@ describe('POST /jobs', () => {
     const response = await request(app)
       .post('/jobs')
       .send({
+        _token: bobToken,
         title: 'CFO',
         salary: 100000,
         equity: 0.1,
@@ -82,6 +102,7 @@ describe('POST /jobs', () => {
     const response = await request(app)
       .post('/jobs')
       .send({
+        _token: bobToken,
         title: 'CFO',
         salary: 100000,
         equity: 5,
@@ -96,6 +117,7 @@ describe('POST /jobs', () => {
     const response = await request(app)
       .post('/jobs')
       .send({
+        _token: bobToken,
         title: 'CFO',
         salary: 100000,
         equity: 5
@@ -104,10 +126,24 @@ describe('POST /jobs', () => {
     expect(error.status).toBe(400);
     expect(error).toHaveProperty('message');
   });
+
+  it('Unauthorized to add job', async () => {
+    const response = await request(app)
+      .post('/jobs')
+      .send({
+        _token: jeremyToken,
+        title: 'CFO',
+        salary: 100000,
+        equity: 5
+      });
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('GET /jobs', () => {
-  it('get all jobs succeeded', async () => {
+  it('Get all jobs succeeded', async () => {
     const response = await request(app)
       .get('/jobs')
       .query({ _token: bobToken });
@@ -115,7 +151,8 @@ describe('GET /jobs', () => {
     expect(response.statusCode).toBe(200);
     expect(jobs).toHaveLength(2);
   });
-  it('get specific job min_salalry = 50000000', async () => {
+
+  it('Get specific job min_salalry = 50000000', async () => {
     const response = await request(app)
       .get('/jobs')
       .query({ _token: bobToken, min_salary: 50000000 });
@@ -123,7 +160,8 @@ describe('GET /jobs', () => {
     expect(response.statusCode).toBe(200);
     expect(jobs).toHaveLength(1);
   });
-  it('get specific job returned no results because min_salalry = 80000000000 ', async () => {
+
+  it('Get specific job returned no results because min_salalry = 80000000000 ', async () => {
     const response = await request(app)
       .get('/jobs')
       .query({ _token: bobToken, min_salary: 80000000000 });
@@ -131,10 +169,20 @@ describe('GET /jobs', () => {
     expect(response.statusCode).toBe(200);
     expect(jobs).toHaveLength(0);
   });
+
+  it('No authentication results in error', async () => {
+    const response = await request(app)
+      .get('/jobs')
+      .query({ min_salary: 80000000000 });
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('GET /jobs/:id', () => {
-  it('get any specific job succeeded', async () => {
+  it('Get any specific job succeeded', async () => {
     const jobs = await Job.getJobs({});
     const firstId = jobs[0].id;
 
@@ -146,7 +194,7 @@ describe('GET /jobs/:id', () => {
     expect(job).toHaveProperty('title', 'CEO');
   });
 
-  it('fail to get non existing job', async () => {
+  it('Fail to get non existing job', async () => {
     const response = await request(app)
       .get(`/jobs/0`)
       .query({ _token: bobToken });
@@ -155,7 +203,7 @@ describe('GET /jobs/:id', () => {
     expect(error).toHaveProperty('message');
   });
 
-  it('user passed in non number job id', async () => {
+  it('User passed in non number job id', async () => {
     const response = await request(app)
       .get(`/jobs/abc`)
       .query({ _token: bobToken });
@@ -163,16 +211,24 @@ describe('GET /jobs/:id', () => {
     expect(error.status).toBe(422);
     expect(error).toHaveProperty('message');
   });
+
+  it('No authentication results in error', async () => {
+    const response = await request(app).get(`/jobs/abc`);
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('PATCH /jobs/:id', () => {
-  it('updates a specific job succeeded', async () => {
+  it('Updates a specific job succeeded', async () => {
     const jobs = await Job.getJobs({});
     const firstId = jobs[0].id;
 
     const response = await request(app)
       .patch(`/jobs/${firstId}`)
       .send({
+        _token: bobToken,
         title: 'CEEEEEEEEO',
         salary: 5,
         equity: 0.0001,
@@ -183,13 +239,14 @@ describe('PATCH /jobs/:id', () => {
     expect(job).toHaveProperty('title', 'CEEEEEEEEO');
   });
 
-  it('fails to update because of invalid company', async () => {
+  it('Fails to update because of invalid company', async () => {
     const jobs = await Job.getJobs({});
     const firstId = jobs[0].id;
 
     const response = await request(app)
       .patch(`/jobs/${firstId}`)
       .send({
+        _token: bobToken,
         title: 'CEEEEEEEEO',
         salary: 5,
         equity: 0.0001,
@@ -200,13 +257,14 @@ describe('PATCH /jobs/:id', () => {
     expect(error).toHaveProperty('message');
   });
 
-  it('fails to update because of invalid params', async () => {
+  it('Fails to update because of invalid params', async () => {
     const jobs = await Job.getJobs({});
     const firstId = jobs[0].id;
 
     const response = await request(app)
       .patch(`/jobs/${firstId}`)
       .send({
+        _token: bobToken,
         cookies: 'yes!'
       });
 
@@ -214,24 +272,57 @@ describe('PATCH /jobs/:id', () => {
     expect(error.status).toBe(400);
     expect(error).toHaveProperty('message');
   });
+
+  it('Unauthorized to update job', async () => {
+    const jobs = await Job.getJobs({});
+    const firstId = jobs[0].id;
+
+    const response = await request(app)
+      .patch(`/jobs/${firstId}`)
+      .send({
+        _token: jeremyToken,
+        title: 'CEEEEEEEEO',
+        salary: 5,
+        equity: 0.0001,
+        company_handle: 'google'
+      });
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 describe('DELETE /jobs/:id', () => {
-  it('deletes a specific job successfully', async () => {
+  it('Deletes a specific job successfully', async () => {
     const jobs = await Job.getJobs({});
     const firstId = jobs[0].id;
-    const response = await request(app).delete(`/jobs/${firstId}`);
+    const response = await request(app)
+      .delete(`/jobs/${firstId}`)
+      .send({ _token: bobToken });
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty('message', 'Job deleted');
   });
 
-  it('fails to delete non existing job', async () => {
-    const response = await request(app).delete(`/jobs/100000`);
+  it('Fails to delete non existing job', async () => {
+    const response = await request(app)
+      .delete(`/jobs/100000`)
+      .send({ _token: bobToken });
 
     const { error } = response.body;
     expect(error.status).toBe(404);
     expect(error).toHaveProperty('message', 'Job not found.');
+  });
+
+  it('Unauthorized to delete job', async () => {
+    const response = await request(app)
+      .delete(`/jobs/100000`)
+      .send({ _token: jeremyToken });
+
+    const { error } = response.body;
+    expect(error.status).toBe(401);
+    expect(error).toHaveProperty('message');
   });
 });
 
