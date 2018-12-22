@@ -13,7 +13,7 @@ const { ensureLoggedIn, ensureAdminUser } = require('../middleware/auth');
 const removeToken = require('../helpers/removeToken');
 const validateJSONSchema = require('../helpers/validateJSONSchema');
 
-//json schema for company post
+//json schema validation
 const companyPostSchema = require('../schemas/companyPostSchema.json');
 const companyPatchSchema = require('../schemas/companyPatchSchema.json');
 
@@ -49,14 +49,6 @@ router.post('/', ensureAdminUser, async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
-  // const result = validate(req.body, companyPostSchema);
-
-  // if (!result.valid) {
-  //   let message = result.errors.map(error => error.stack);
-  //   let status = 400;
-  //   let error = new APIError(message, status);
-  //   return next(error);
-  // }
 
   removeToken(req.body);
 
@@ -107,16 +99,6 @@ router.patch('/:handle', ensureAdminUser, async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
-  // const result = validate(req.body, companyPatchSchema);
-
-  // if (!result.valid) {
-  //   // pass validation errors to error handler
-  //   //  (the "stack" key is generally the most useful)
-  //   let message = result.errors.map(error => error.stack);
-  //   let status = 400;
-  //   let error = new APIError(message, status);
-  //   return next(error);
-  // }
 
   removeToken();
 

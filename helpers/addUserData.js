@@ -4,21 +4,21 @@ const db = require('../db');
 async function setUp() {
   await db.query('DELETE FROM users');
   await User.addUser({
-    username: 'roni',
+    username: 'harry',
     password: '123456',
-    first_name: 'roni',
-    last_name: 'h',
-    email: 'rh@abcdefghijklmon.com',
+    first_name: 'harry',
+    last_name: 'hh',
+    email: 'hh@abcdefghijklmon.com',
     photo_url: 'https://www.wow.com/pic.jpg',
     is_admin: true
   });
 
   await User.addUser({
-    username: 'gin',
+    username: 'bob',
     password: '123456',
-    first_name: 'gin',
+    first_name: 'bob',
     last_name: 'w',
-    email: 'gw@abcdefghijklmon.com',
+    email: 'bw@abcdefghijklmon.com',
     photo_url: 'https://www.wow.com/pic.jpg',
     is_admin: true
   });

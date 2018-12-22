@@ -4,19 +4,8 @@ const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
   /** getCompanies -- retreive companies details
-   input: from request body {
-     search,
-     min_employees,
-     max_employees 
-   }
-   output: =>
-    [{
-      "handle": "apple",
-      "name": "Apple Inc",
-      "num_employees": 300,
-      "description": null,
-      "logo_url": null
-    }]
+   * input: { search, min_employees, max_employees }
+   * output: [ { companyDetails}, ... ]
    */
   static async getCompanies(companyParams) {
     for (let key in companyParams) {
@@ -69,14 +58,8 @@ class Company {
   }
 
   /** addCompany -- add new company
-  input: 
-    {
-      handle: 'roni',
-      name: 'Roni, Inc.',
-      num_employees: 50,
-      description: 'Amazing Cooking',
-      logo_url: 'https://www.amazingcooking.com/logo.png'
-    }
+   * input: { handle, name, num_employees, description, logo_url }
+   * output: { companyDetails }
    */
   static async addCompany({
     handle,
@@ -102,14 +85,8 @@ class Company {
   }
 
   /** getCompany -- get a specific company
-   * input: 'roni'
-   * output: => {
-      handle: 'roni',
-      name: 'Roni, Inc.',
-      num_employees: 50,
-      description: 'Amazing Cooking',
-      logo_url: 'https://www.amazingcooking.com/logo.png'
-    }
+   * input: handle
+   * output: { companyDetails }
    */
   static async getCompany(handle) {
     const company = await db.query(
@@ -124,19 +101,8 @@ class Company {
   }
 
   /** patchCompany -- get specific company
-    input: ('handlename', {
-      name: 'Roni, Inc.',
-      num_employees: 500,
-      description: 'Amazing Cooking',
-      logo_url: 'https://www.amazingcooking.com/logo.png'
-      }) 
-    output => {
-      handle: 'roni',
-      name: 'Roni, Inc.',
-      num_employees: 500,
-      description: 'Amazing Cooking',
-      logo_url: 'https://www.amazingcooking.com/logo.png'
-    }
+   * input: ( handlename, { name, num_employees, description, logo_url } )
+   * output: { companyDetails }
    */
   static async patchCompany(handle, companyDetails) {
     // test if company exists, else throw Error
@@ -158,14 +124,8 @@ class Company {
   }
 
   /** deleteCompany -- delete specific company
-   input: handle (param)
-   output: => {
-      handle: 'roni',
-      name: 'Roni, Inc.',
-      num_employees: 500,
-      description: 'Amazing Cooking',
-      logo_url: 'https://www.amazingcooking.com/logo.png'
-    }
+   * input: handle
+   * output: { companyDetails }
    */
   static async deleteCompany(handle) {
     // test if company exists, else throw Error

@@ -38,8 +38,8 @@ beforeEach(async () => {
   });
 
   await Company.addCompany({
-    handle: 'roni',
-    name: 'Roni Inc',
+    handle: 'kevin',
+    name: 'kevin Inc',
     num_employees: 5
   });
 
@@ -54,7 +54,7 @@ beforeEach(async () => {
     title: 'CEO',
     salary: 5000000,
     equity: 0.25,
-    company_handle: 'roni'
+    company_handle: 'kevin'
   });
 
   await Job.addJob({

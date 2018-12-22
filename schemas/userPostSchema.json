@@ -19,7 +19,7 @@
       "type": "string",
       "title": "The Username Schema",
       "default": "",
-      "examples": ["roni"],
+      "examples": ["kevin"],
       "pattern": "^(.*)$"
     },
     "password": {
@@ -36,7 +36,7 @@
       "type": "string",
       "title": "The First_name Schema",
       "default": "",
-      "examples": ["roni"],
+      "examples": ["kevin"],
       "pattern": "^(.*)$"
     },
     "last_name": {

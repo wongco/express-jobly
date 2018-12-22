@@ -16,7 +16,7 @@ const { ensureCorrectUser } = require('../middleware/auth');
 const removeToken = require('../helpers/removeToken');
 const validateJSONSchema = require('../helpers/validateJSONSchema');
 
-//json schema for user post, patch
+//json schema validation
 const userPostSchema = require('../schemas/userPostSchema.json');
 const userPatchSchema = require('../schemas/userPatchSchema.json');
 

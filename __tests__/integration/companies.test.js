@@ -38,8 +38,8 @@ beforeEach(async () => {
   });
 
   await Company.addCompany({
-    handle: 'roni',
-    name: 'Roni Inc',
+    handle: 'kevin',
+    name: 'kevin Inc',
     num_employees: 5
   });
 
@@ -53,7 +53,7 @@ beforeEach(async () => {
     title: 'CEO',
     salary: 5000000,
     equity: 0.25,
-    company_handle: 'roni'
+    company_handle: 'kevin'
   });
 
   await Job.addJob({
@@ -97,13 +97,13 @@ describe('GET /companies', () => {
       .get(`/companies`)
       .query({
         _token: bobToken,
-        search: 'roni'
+        search: 'kevin'
       });
 
     const { companies } = response.body;
     expect(response.statusCode).toBe(200);
     expect(companies).toHaveLength(1);
-    expect(companies[0]).toHaveProperty('handle', 'roni');
+    expect(companies[0]).toHaveProperty('handle', 'kevin');
   });
 
   it('Get specific companies no results success', async () => {
@@ -169,8 +169,8 @@ describe('POST /companies', () => {
       .post(`/companies`)
       .send({
         _token: bobToken,
-        handle: 'roni',
-        name: 'Roni Inc',
+        handle: 'kevin',
+        name: 'kevin Inc',
         num_employees: 5
       });
 
@@ -183,7 +183,7 @@ describe('POST /companies', () => {
       .post(`/companies`)
       .send({
         _token: bobToken,
-        name: 'Roni Inc',
+        name: 'kevin Inc',
         num_employees: 5
       });
 
@@ -197,7 +197,7 @@ describe('POST /companies', () => {
       .post(`/companies`)
       .send({
         _token: jeremyToken,
-        name: 'Roni Inc',
+        name: 'kevin Inc',
         num_employees: 5
       });
 
@@ -210,17 +210,17 @@ describe('POST /companies', () => {
 describe('GET /companies/:handle', () => {
   it('Getting a company and its related job posts succeeded', async () => {
     const response = await request(app)
-      .get(`/companies/roni`)
+      .get(`/companies/kevin`)
       .query({ _token: bobToken });
     const { company } = response.body;
     expect(response.statusCode).toBe(200);
-    expect(company).toHaveProperty('handle', 'roni');
+    expect(company).toHaveProperty('handle', 'kevin');
     expect(Array.isArray(company.jobs)).toBe(true);
   });
 
   it('Getting a company failed', async () => {
     const response = await request(app)
-      .get(`/companies/gin`)
+      .get(`/companies/milk`)
       .query({ _token: bobToken });
 
     expect(response.statusCode).toBe(404);
@@ -228,7 +228,7 @@ describe('GET /companies/:handle', () => {
   });
 
   it('No authentication results in error', async () => {
-    const response = await request(app).get(`/companies/gin`);
+    const response = await request(app).get(`/companies/milk`);
 
     const { error } = response.body;
     expect(error.status).toBe(401);
@@ -239,18 +239,18 @@ describe('GET /companies/:handle', () => {
 describe('PATCH /companies/:handle', () => {
   it('Patching a company succeeded', async () => {
     const response = await request(app)
-      .patch(`/companies/roni`)
+      .patch(`/companies/kevin`)
       .send({
         _token: bobToken,
-        name: 'RoniTechCorp',
+        name: 'kevinTechCorp',
         num_employees: 1000,
-        description: 'Roni Tech 2.0',
-        logo_url: 'https://www.ronitechcorp.com/wow.jpg'
+        description: 'kevin Tech 2.0',
+        logo_url: 'https://www.kevintechcorp.com/wow.jpg'
       });
 
     const { company } = response.body;
     expect(response.statusCode).toBe(200);
-    expect(company).toHaveProperty('handle', 'roni');
+    expect(company).toHaveProperty('handle', 'kevin');
     expect(company).toHaveProperty('num_employees', 1000);
   });
 
@@ -272,7 +272,7 @@ describe('PATCH /companies/:handle', () => {
 
   it('Unauthorized to update company', async () => {
     const response = await request(app)
-      .patch(`/companies/roni`)
+      .patch(`/companies/kevin`)
       .send({
         _token: jeremyToken,
         name: 'Wow',

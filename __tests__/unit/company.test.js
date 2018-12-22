@@ -10,7 +10,7 @@ beforeEach(async () => {
   // insert first company
   await db.query(
     'INSERT INTO companies (handle, name, num_employees) VALUES ($1, $2, $3)',
-    ['roni', 'Roni Inc', 5]
+    ['kevin', 'kevin Inc', 5]
   );
   // insert second company
   await db.query(
@@ -22,13 +22,13 @@ beforeEach(async () => {
 describe('getCompanies method', async () => {
   it('should give us specific results', async () => {
     const companies = await Company.getCompanies({
-      search: 'roni',
+      search: 'kevin',
       min_employees: 1,
       max_employees: 10
     });
 
     expect(companies).toHaveLength(1);
-    expect(companies[0]).toHaveProperty('handle', 'roni');
+    expect(companies[0]).toHaveProperty('handle', 'kevin');
   });
 
   it('should give us all the companies in database', async () => {
@@ -39,7 +39,7 @@ describe('getCompanies method', async () => {
   it('should fail when when min > max', async () => {
     try {
       await Company.getCompanies({
-        search: 'roni',
+        search: 'kevin',
         min_employees: 30,
         max_employees: 10
       });
@@ -59,19 +59,19 @@ describe('getCompanies method', async () => {
 describe('addCompany method', async () => {
   it('adding a company successfully', async () => {
     const company = await Company.addCompany({
-      handle: 'gin',
-      name: 'WongCo, Inc.',
+      handle: 'carrots',
+      name: 'Carrots, Inc.',
       num_employees: 51
     });
 
-    expect(company).toHaveProperty('handle', 'gin');
+    expect(company).toHaveProperty('handle', 'carrots');
   });
 
   it('fail adding a company that exists', async () => {
     try {
       await Company.addCompany({
-        handle: 'roni',
-        name: 'Roni Inc',
+        handle: 'kevin',
+        name: 'kevin Inc',
         num_employees: 51
       });
     } catch (err) {
@@ -82,7 +82,7 @@ describe('addCompany method', async () => {
   it('fail bad sql query due to missing handle key', async () => {
     try {
       await Company.addCompany({
-        name: 'Roni Inc',
+        name: 'kevin Inc',
         num_employees: 51
       });
     } catch (err) {
@@ -95,8 +95,8 @@ describe('addCompany method', async () => {
 
 describe('getCompany method', async () => {
   it('gets a company and its job posts successfully', async () => {
-    const company = await Company.getCompany('roni');
-    expect(company).toHaveProperty('handle', 'roni');
+    const company = await Company.getCompany('kevin');
+    expect(company).toHaveProperty('handle', 'kevin');
   });
 
   it('should fail company does not exist', async () => {
@@ -110,16 +110,16 @@ describe('getCompany method', async () => {
 
 describe('patchCompany method', async () => {
   it('updates a company successfully', async () => {
-    const company = await Company.patchCompany('roni', {
+    const company = await Company.patchCompany('kevin', {
       num_employees: 100
     });
-    expect(company).toHaveProperty('handle', 'roni');
+    expect(company).toHaveProperty('handle', 'kevin');
     expect(company).toHaveProperty('num_employees', 100);
   });
 
   it('fails when company does not exist', async () => {
     try {
-      await Company.patchCompany('gin', {
+      await Company.patchCompany('carrots', {
         num_employees: 100
       });
     } catch (error) {
@@ -129,7 +129,7 @@ describe('patchCompany method', async () => {
 
   it('fails when bad attribute is provided', async () => {
     try {
-      await Company.patchCompany('roni', {
+      await Company.patchCompany('kevin', {
         num_parties: 100
       });
     } catch (err) {
@@ -144,7 +144,12 @@ describe('deleteCompany method', async () => {
   it('deletes a company successfully', async () => {
     const company = await Company.deleteCompany('google');
     expect(company).toHaveProperty('handle', 'google');
-    // db
+
+    try {
+      await Company.getCompany('google');
+    } catch (error) {
+      expect(error.message).toEqual('Company not found.');
+    }
   });
 
   it('fails when company does not exist', async () => {
