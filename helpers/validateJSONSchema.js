@@ -1,6 +1,7 @@
 const { validate } = require('jsonschema');
 const APIError = require('../models/ApiError');
 
+/** runs the validation module from jsonschema and throws error with causes */
 function validateJSONSchema(reqData, schema) {
   const result = validate(reqData, schema);
 

@@ -17,68 +17,70 @@ You will need to have the following items installed in order to run this program
 
 1. Fork or clone the repo, and run npm install. package.json has all required dependencies.
 
-	- only production packages
-	
-	```
-	npm install --production
-	```
-	
-	- only dev packages
-	
-	```
-	npm install --only=dev
-	```
-	
-	- Install Everything
-	
-	```
-	npm install
-	```
+   - only production packages
+
+   ```
+   npm install --production
+   ```
+
+   - only dev packages
+
+   ```
+   npm install --only=dev
+   ```
+
+   - Install Everything
+
+   ```
+   npm install
+   ```
 
 2. Use a global install of nodemon or start the program by running server.js
 
-	```
-	nodemon server.js
-	```
-	
-	or
-	
-	```
-	node server.js
-	```
-	
+   ```
+   nodemon server.js
+   ```
+
+   or
+
+   ```
+   node server.js
+   ```
+
 ## Running Tests
-* In the root folder, run:
-	
-	```
-	npm test
-	```
-	
+
+- In the root folder, run:
+  `npm test`
+
 ## Routes Reference
 
 ### Authentication
-* POST - /login
+
+- POST - /login
 
 ### Users
-* GET - /users
-* POST - /users
-* GET - /users/username
-* PATCH - /users/username
-* DELETE - /users/username
+
+- GET - /users
+- POST - /users
+- GET - /users/username
+- PATCH - /users/username
+- DELETE - /users/username
 
 ### Companies
-* GET - /companies
-* POST - /companies
-* GET - /companies/handle
-* PATCH - /companies/handle
-* DELETE - /companies/handle
+
+- GET - /companies
+- POST - /companies
+- GET - /companies/handle
+- PATCH - /companies/handle
+- DELETE - /companies/handle
 
 ### Jobs
-* GET - /jobs
-* POST - /jobs
-* GET - /jobs/handle
-* PATCH - /jobs/handle
-* DELETE - /jobs/handle
+
+- GET - /jobs
+- POST - /jobs
+- GET - /jobs/id
+- PATCH - /jobs/id
+- DELETE - /jobs/id
 
 ## Built With
 
