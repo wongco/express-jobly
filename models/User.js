@@ -121,6 +121,8 @@ class User {
     if (!isValid) {
       throw new Error('Invalid Password');
     }
+
+    return true;
   }
 
   /** check User is Admin */
@@ -138,6 +140,8 @@ class User {
     if (!is_admin) {
       throw new Error('Not Admin');
     }
+
+    return true;
   }
 }
 
