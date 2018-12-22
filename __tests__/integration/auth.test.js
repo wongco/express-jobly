@@ -33,7 +33,7 @@ beforeEach(async () => {
 });
 
 describe('POST /login', () => {
-  it('user login succeeded', async () => {
+  it('User login succeeded', async () => {
     const response = await request(app)
       .post('/login')
       .send({
@@ -45,7 +45,7 @@ describe('POST /login', () => {
     expect(response.body).toHaveProperty('token');
   });
 
-  it('user login failed due to bad username', async () => {
+  it('User login failed due to bad username', async () => {
     const response = await request(app)
       .post('/login')
       .send({
@@ -58,7 +58,7 @@ describe('POST /login', () => {
     expect(error).toHaveProperty('message');
   });
 
-  it('user login failed due to bad password', async () => {
+  it('User login failed due to bad password', async () => {
     const response = await request(app)
       .post('/login')
       .send({
@@ -68,6 +68,19 @@ describe('POST /login', () => {
 
     const { error } = response.body;
     expect(error.status).toBe(422);
+    expect(error).toHaveProperty('message');
+  });
+
+  it('Failed due to invalid parameter', async () => {
+    const response = await request(app)
+      .post('/login')
+      .send({
+        username: 'bob',
+        color: 'blue'
+      });
+
+    const { error } = response.body;
+    expect(error.status).toBe(400);
     expect(error).toHaveProperty('message');
   });
 });

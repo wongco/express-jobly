@@ -14,9 +14,9 @@ const { ensureCorrectUser } = require('../middleware/auth');
 
 // import helper
 const removeToken = require('../helpers/removeToken');
+const validateJSONSchema = require('../helpers/validateJSONSchema');
 
 //json schema for user post, patch
-const { validate } = require('jsonschema');
 const userPostSchema = require('../schemas/userPostSchema.json');
 const userPatchSchema = require('../schemas/userPatchSchema.json');
 
@@ -25,14 +25,11 @@ const userPatchSchema = require('../schemas/userPatchSchema.json');
   output: { username, password, first_name, last_name, email, photo_url, is_admin }
  */
 router.post('/', async (req, res, next) => {
-  const result = validate(req.body, userPostSchema);
-
-  if (!result.valid) {
-    // pass validation errors to error handler
-    let message = result.errors.map(error => error.stack);
-    let status = 400;
-    let error = new APIError(message, status);
-    return next(error);
+  try {
+    // if schema is invalid, throw error
+    validateJSONSchema(req.body, userPostSchema);
+  } catch (err) {
+    return next(err);
   }
 
   try {
@@ -89,13 +86,11 @@ router.get('/:username', ensureCorrectUser, async (req, res, next) => {
  * output: { user: { username, first_name, last_name, email, photo_url } }
  **/
 router.patch('/:username', ensureCorrectUser, async (req, res, next) => {
-  const result = validate(req.body, userPatchSchema);
-  if (!result.valid) {
-    //pass validation errors to error handler
-    let message = result.errors.map(err => err.stack);
-    let status = 400;
-    let error = new APIError(message, status);
-    return next(error);
+  try {
+    // if schema is invalid, throw error
+    validateJSONSchema(req.body, userPatchSchema);
+  } catch (err) {
+    return next(err);
   }
 
   removeToken(req.body);
@@ -122,7 +117,7 @@ router.patch('/:username', ensureCorrectUser, async (req, res, next) => {
 router.delete('/:username', ensureCorrectUser, async (req, res, next) => {
   try {
     const { username } = req.params;
-    const user = await User.deleteUser(username);
+    await User.deleteUser(username);
     return res.json({ message: 'User deleted' });
   } catch (err) {
     let error;

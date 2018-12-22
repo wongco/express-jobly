@@ -10,9 +10,9 @@ const { ensureLoggedIn, ensureAdminUser } = require('../middleware/auth');
 
 // import helper
 const removeToken = require('../helpers/removeToken');
+const validateJSONSchema = require('../helpers/validateJSONSchema');
 
-//json schema for company post
-const { validate } = require('jsonschema');
+//json schema validation
 const jobPostSchema = require('../schemas/jobPostSchema.json');
 const jobPatchSchema = require('../schemas/jobPatchSchema.json');
 
@@ -21,14 +21,11 @@ const jobPatchSchema = require('../schemas/jobPatchSchema.json');
  * output: { job: {jobDetails } }
  **/
 router.post('/', ensureAdminUser, async (req, res, next) => {
-  // validateJSONSchema(req.body, jobPostSchema);
-  const result = validate(req.body, jobPostSchema);
-  if (!result.valid) {
-    // pass validation errors to error handler
-    let message = result.errors.map(error => error.stack);
-    let status = 400;
-    let error = new APIError(message, status);
-    return next(error);
+  try {
+    // if schema is invalid, throw error
+    validateJSONSchema(req.body, jobPostSchema);
+  } catch (err) {
+    return next(err);
   }
 
   removeToken(req.body);
@@ -88,14 +85,11 @@ router.get('/:id', ensureLoggedIn, async (req, res, next) => {
  * output: { jobs: { jobData } }
  **/
 router.patch('/:id', ensureAdminUser, async (req, res, next) => {
-  const result = validate(req.body, jobPatchSchema);
-
-  if (!result.valid) {
-    // pass validation errors to error handler
-    let message = result.errors.map(error => error.stack);
-    let status = 400;
-    let error = new APIError(message, status);
-    return next(error);
+  try {
+    // if schema is invalid, throw error
+    validateJSONSchema(req.body, jobPatchSchema);
+  } catch (err) {
+    return next(err);
   }
 
   removeToken(req.body);

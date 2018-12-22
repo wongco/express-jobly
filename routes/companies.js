@@ -11,9 +11,9 @@ const { ensureLoggedIn, ensureAdminUser } = require('../middleware/auth');
 
 // import helper
 const removeToken = require('../helpers/removeToken');
+const validateJSONSchema = require('../helpers/validateJSONSchema');
 
 //json schema for company post
-const { validate } = require('jsonschema');
 const companyPostSchema = require('../schemas/companyPostSchema.json');
 const companyPatchSchema = require('../schemas/companyPatchSchema.json');
 
@@ -43,14 +43,20 @@ router.get('/', ensureLoggedIn, async (req, res, next) => {
  * output: { company: { companyData } }
  **/
 router.post('/', ensureAdminUser, async (req, res, next) => {
-  const result = validate(req.body, companyPostSchema);
-
-  if (!result.valid) {
-    let message = result.errors.map(error => error.stack);
-    let status = 400;
-    let error = new APIError(message, status);
-    return next(error);
+  try {
+    // if schema is invalid, throw error
+    validateJSONSchema(req.body, companyPostSchema);
+  } catch (err) {
+    return next(err);
   }
+  // const result = validate(req.body, companyPostSchema);
+
+  // if (!result.valid) {
+  //   let message = result.errors.map(error => error.stack);
+  //   let status = 400;
+  //   let error = new APIError(message, status);
+  //   return next(error);
+  // }
 
   removeToken(req.body);
 
@@ -75,7 +81,6 @@ router.post('/', ensureAdminUser, async (req, res, next) => {
 router.get('/:handle', ensureLoggedIn, async (req, res, next) => {
   try {
     const { handle } = req.params;
-
     const company = await Company.getCompany(handle);
     const jobs = await Job.getJobs({ search: company.handle });
     company.jobs = jobs;
@@ -96,16 +101,22 @@ router.get('/:handle', ensureLoggedIn, async (req, res, next) => {
  * output: { company: { companyData } }
  **/
 router.patch('/:handle', ensureAdminUser, async (req, res, next) => {
-  const result = validate(req.body, companyPatchSchema);
-
-  if (!result.valid) {
-    // pass validation errors to error handler
-    //  (the "stack" key is generally the most useful)
-    let message = result.errors.map(error => error.stack);
-    let status = 400;
-    let error = new APIError(message, status);
-    return next(error);
+  try {
+    // if schema is invalid, throw error
+    validateJSONSchema(req.body, companyPatchSchema);
+  } catch (err) {
+    return next(err);
   }
+  // const result = validate(req.body, companyPatchSchema);
+
+  // if (!result.valid) {
+  //   // pass validation errors to error handler
+  //   //  (the "stack" key is generally the most useful)
+  //   let message = result.errors.map(error => error.stack);
+  //   let status = 400;
+  //   let error = new APIError(message, status);
+  //   return next(error);
+  // }
 
   removeToken();
 
