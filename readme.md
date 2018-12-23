@@ -47,6 +47,26 @@ You will need to have the following items installed in order to run this program
    node server.js
    ```
 
+3. Install the postgresql schema tables onto your database.
+
+	For production database:
+	```
+	psql jobly < data.sql
+	```
+	
+	For test database:
+	```
+	psql jobly-test < data.sql
+	```
+	
+	If you want to load sample data on your database, run the following command:
+	
+	```
+	node ./helpers/addUserData.js
+	```
+	
+	
+
 ## Running Tests
 
 - In the root folder, run:

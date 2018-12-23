@@ -15,13 +15,13 @@ CREATE TABLE companies
     logo_url text
 );
 
-INSERT INTO companies
-    (handle, name, num_employees)
-VALUES
-    ('apple', 'Apple Inc', 11000),
-    ('ibm', 'IBM', 100000),
-    ('google', 'Google Inc', 10000),
-    ('uber', 'Uber Inc', 15000);
+-- INSERT INTO companies
+--     (handle, name, num_employees)
+-- VALUES
+--     ('apple', 'Apple Inc', 11000),
+--     ('ibm', 'IBM', 100000),
+--     ('google', 'Google Inc', 10000),
+--     ('uber', 'Uber Inc', 15000);
 
 CREATE TABLE jobs
 (
@@ -32,13 +32,13 @@ CREATE TABLE jobs
     company_handle text NOT NULL REFERENCES companies ON DELETE CASCADE,
     date_posted date DEFAULT CURRENT_DATE NOT NULL
 );
-INSERT INTO jobs
-    (title, salary, equity, company_handle)
-VALUES
-    ('SE', 100000, 0.01, 'apple' ),
-    ('Accounting', 80000, 0.001, 'ibm' ),
-    ('IT', 99000, 0.01, 'google' ),
-    ('HR', 70000, 0.01, 'uber' );
+-- INSERT INTO jobs
+--     (title, salary, equity, company_handle)
+-- VALUES
+--     ('SE', 100000, 0.01, 'apple' ),
+--     ('Accounting', 80000, 0.001, 'ibm' ),
+--     ('IT', 99000, 0.01, 'google' ),
+--     ('HR', 70000, 0.01, 'uber' );
 
 CREATE TABLE users
 (
@@ -50,13 +50,13 @@ CREATE TABLE users
     photo_url text,
     is_admin BOOLEAN DEFAULT FALSE NOT NULL
 );
-INSERT INTO users
-    (username, password, first_name, last_name, email, is_admin)
-VALUES
-    ('jimmy', '123456', 'jimmy', 'hands', 'jhands@favcomp.com', true),
-    ('greg', '123456', 'greg', 'olson', 'golson@tky.net', true),
-    ('karen', '123456', 'karen', 'alma', 'katt2@aololdtimers.com', false),
-    ('michael', '123456', 'mitch', 'brenson', 'mbrenboy@yesmail.com', false);
+-- INSERT INTO users
+--     (username, password, first_name, last_name, email, is_admin)
+-- VALUES
+--     ('jimmy', '123456', 'jimmy', 'hands', 'jhands@favcomp.com', true),
+--     ('greg', '123456', 'greg', 'olson', 'golson@tky.net', true),
+--     ('karen', '123456', 'karen', 'alma', 'katt2@aololdtimers.com', false),
+--     ('michael', '123456', 'mitch', 'brenson', 'mbrenboy@yesmail.com', false);
 
 -- created enumerated type for appliations table
 DROP TYPE state;
@@ -70,14 +70,14 @@ CREATE TABLE applications
     created_at date DEFAULT CURRENT_DATE NOT NULL,
     PRIMARY KEY(username, job_id)
 );
-INSERT INTO applications
-    (username, job_id, state)
-VALUES
-    ('jimmy', 1, 'interested'),
-    ('karen', 2, 'interested'),
-    ('greg', 3, 'interested'),
-    ('michael', 3, 'interested'),
-    ('michael', 1, 'interested');
+-- INSERT INTO applications
+--     (username, job_id, state)
+-- VALUES
+--     ('jimmy', 1, 'interested'),
+--     ('karen', 2, 'interested'),
+--     ('greg', 3, 'interested'),
+--     ('michael', 3, 'interested'),
+--     ('michael', 1, 'interested');
 
 CREATE TABLE tech
 (
@@ -93,13 +93,13 @@ CREATE TABLE jobs_tech
     PRIMARY KEY(job_id, tech_name)
 );
 
-INSERT INTO jobs_tech
-    (job_id, tech_name)
-VALUES
-    (1, 'python'),
-    (2, 'javascript'),
-    (3, 'node'),
-    (4, 'sql');
+-- INSERT INTO jobs_tech
+--     (job_id, tech_name)
+-- VALUES
+--     (1, 'python'),
+--     (2, 'javascript'),
+--     (3, 'node'),
+--     (4, 'sql');
 
 CREATE TABLE users_tech
 (
@@ -108,11 +108,11 @@ CREATE TABLE users_tech
     PRIMARY KEY(username, tech_name)
 );
 
-INSERT INTO users_tech
-    (username, tech_name)
-VALUES
-    ('jimmy', 'python'),
-    ('karen', 'javascript'),
-    ('greg', 'node'),
-    ('michael', 'sql'),
-    ('michael', 'node');
+-- INSERT INTO users_tech
+--     (username, tech_name)
+-- VALUES
+--     ('jimmy', 'python'),
+--     ('karen', 'javascript'),
+--     ('greg', 'node'),
+--     ('michael', 'sql'),
+--     ('michael', 'node');
