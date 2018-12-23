@@ -8,6 +8,7 @@ const { SECRET } = require('../config');
 // import model classes
 const User = require('../models/User');
 const APIError = require('../models/ApiError');
+const Application = require('../models/Application');
 
 // import middleware
 const { ensureCorrectUser } = require('../middleware/auth');
@@ -69,6 +70,8 @@ router.get('/:username', ensureCorrectUser, async (req, res, next) => {
   try {
     const { username } = req.params;
     const user = await User.getUser(username);
+    const jobs = await Application.getApplications(username);
+    user.jobs = jobs;
     return res.json({ user });
   } catch (err) {
     let error;

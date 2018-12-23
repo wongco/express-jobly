@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS users_tech;
+DROP TABLE IF EXISTS jobs_tech;
+DROP TABLE IF EXISTS tech;
+DROP TABLE IF EXISTS applications;
 DROP TABLE IF EXISTS jobs;
 DROP TABLE IF EXISTS companies;
 DROP TABLE IF EXISTS users;
@@ -33,7 +37,7 @@ INSERT INTO jobs
 VALUES
     ('SE', 100000, 0.01, 'apple' ),
     ('Accounting', 80000, 0.001, 'ibm' ),
-    ('IT', 100000, 0.01, 'google' ),
+    ('IT', 99000, 0.01, 'google' ),
     ('HR', 70000, 0.01, 'uber' );
 
 CREATE TABLE users
@@ -53,3 +57,62 @@ VALUES
     ('greg', '123456', 'greg', 'olson', 'golson@tky.net', true),
     ('karen', '123456', 'karen', 'alma', 'katt2@aololdtimers.com', false),
     ('michael', '123456', 'mitch', 'brenson', 'mbrenboy@yesmail.com', false);
+
+-- created enumerated type for appliations table
+DROP TYPE state;
+CREATE TYPE state AS ENUM ('interested', 'applied', 'accepted', 'rejected');
+
+CREATE TABLE applications 
+(
+    username text REFERENCES users ON DELETE CASCADE,
+    job_id integer REFERENCES jobs ON DELETE CASCADE,
+    state state NOT NULL,
+    created_at date DEFAULT CURRENT_DATE NOT NULL,
+    PRIMARY KEY(username, job_id)
+);
+INSERT INTO applications
+    (username, job_id, state)
+VALUES
+    ('jimmy', 1, 'interested'),
+    ('karen', 2, 'interested'),
+    ('greg', 3, 'interested'),
+    ('michael', 3, 'interested'),
+    ('michael', 1, 'interested');
+
+CREATE TABLE tech
+(
+    name text PRIMARY KEY
+);
+
+INSERT INTO tech VALUES ('python'), ('javascript'), ('node'), ('sql');
+
+CREATE TABLE jobs_tech
+(
+    job_id integer REFERENCES jobs ON DELETE CASCADE,
+    tech_name text REFERENCES tech ON DELETE CASCADE,
+    PRIMARY KEY(job_id, tech_name)
+);
+
+INSERT INTO jobs_tech
+    (job_id, tech_name)
+VALUES
+    (1, 'python'),
+    (2, 'javascript'),
+    (3, 'node'),
+    (4, 'sql');
+
+CREATE TABLE users_tech
+(
+    username text REFERENCES users ON DELETE CASCADE,
+    tech_name text REFERENCES tech ON DELETE CASCADE,
+    PRIMARY KEY(username, tech_name)
+);
+
+INSERT INTO users_tech
+    (username, tech_name)
+VALUES
+    ('jimmy', 'python'),
+    ('karen', 'javascript'),
+    ('greg', 'node'),
+    ('michael', 'sql'),
+    ('michael', 'node');

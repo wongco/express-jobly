@@ -24,7 +24,7 @@ app.use('/jobs', jobsRoutes);
 app.use('/users', usersRoutes);
 
 /** 404 handler */
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;
 
@@ -33,7 +33,7 @@ app.use(function(req, res, next) {
 });
 
 /** general error handler */
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   // all errors that get to here get coerced into API Errors
   if (!(err instanceof APIError)) {
     err = new APIError(err.message, err.status);

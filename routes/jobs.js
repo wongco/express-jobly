@@ -135,4 +135,24 @@ router.delete('/:id', ensureAdminUser, async (req, res, next) => {
   }
 });
 
+/** POST /jobs/:id/apply - apply to a specific job by current user
+ * input: { _token, state }
+ * output: { message: new-state }
+ */
+
+router.post('/:id/apply', ensureLoggedIn, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    // check if job exists first, if not, throw error
+    await Job.getJob(id);
+
+    const { username } = req;
+    const { state } = req.body;
+    const job = await Job.apply(username, id, state);
+    return res.json({ message: job.state });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 module.exports = router;

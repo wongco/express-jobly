@@ -44,6 +44,14 @@ async function setUp() {
   });
 }
 
-setUp();
+setUp()
+  .then(resp => {
+    console.log('done adding data.');
+    process.exit(0);
+  })
+  .catch(error => {
+    console.log('There was an error');
+    process.exit(1);
+  });
 
 module.exports = setUp;
