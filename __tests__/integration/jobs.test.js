@@ -326,6 +326,42 @@ describe('DELETE /jobs/:id', () => {
   });
 });
 
+describe('POST /jobs/:id/apply', () => {
+  it('Apply to a job successfully by current user', async () => {
+    const jobs = await Job.getJobs({});
+    const firstId = jobs[0].id;
+    const response = await request(app)
+      .post(`/jobs/${firstId}/apply`)
+      .send({ _token: bobToken, state: 'interested' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toHaveProperty('message', 'interested');
+  });
+
+  it('fail to apply due to invalid state param', async () => {
+    const jobs = await Job.getJobs({});
+    const firstId = jobs[0].id;
+
+    const response = await request(app)
+      .post(`/jobs/${firstId}/apply`)
+      .send({ _token: bobToken, state: 'crammed' });
+
+    const { error } = response.body;
+    expect(error.status).toBe(422);
+    expect(error).toHaveProperty('message', 'Invalid state. Check your input.');
+  });
+
+  it('Failed due to invalid jobId', async () => {
+    const response = await request(app)
+      .post(`/jobs/0/apply`)
+      .send({ _token: bobToken, state: 'interested' });
+
+    const { error } = response.body;
+    expect(error.status).toBe(404);
+    expect(error).toHaveProperty('message', 'Job not found.');
+  });
+});
+
 afterEach(async function() {
   // delete any data created by test
   await db.query('DELETE FROM companies');

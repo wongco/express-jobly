@@ -115,16 +115,6 @@ class Job {
 
     return jobResults.rows[0];
   }
-
-  /** apply to job */
-  static async apply(username, id, state) {
-    const result = await db.query(
-      `INSERT INTO applications (username, job_id, state) VALUES ($1, $2, $3) RETURNING *`,
-      [username, id, state]
-    );
-    console.log('hi');
-    return result.rows[0];
-  }
 }
 
 module.exports = Job;

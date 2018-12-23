@@ -2,6 +2,7 @@ const express = require('express');
 const router = new express.Router();
 
 // import model classes
+const Application = require('../models/Application');
 const Job = require('../models/Job');
 const APIError = require('../models/ApiError');
 
@@ -146,12 +147,23 @@ router.post('/:id/apply', ensureLoggedIn, async (req, res, next) => {
     // check if job exists first, if not, throw error
     await Job.getJob(id);
 
+    // username will be verified by the time we get here due to middleware
     const { username } = req;
     const { state } = req.body;
-    const job = await Job.apply(username, id, state);
+    const job = await Application.applyJob(username, id, state);
     return res.json({ message: job.state });
   } catch (err) {
-    return next(err);
+    let error;
+    if (err.message === 'Job not found.') {
+      error = new APIError(err.message, 404);
+    } else if (
+      err.message === 'invalid input value for enum state: "crammed"'
+    ) {
+      error = new APIError('Invalid state. Check your input.', 422);
+    } else {
+      error = Error('Server error occured.');
+    }
+    return next(error);
   }
 });
 
