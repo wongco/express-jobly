@@ -81,6 +81,7 @@ You will need to have the following items installed in order to run this program
 - GET - /jobs/id
 - PATCH - /jobs/id
 - DELETE - /jobs/id
+- POST - /jobs/id/apply
 
 ## Built With
 

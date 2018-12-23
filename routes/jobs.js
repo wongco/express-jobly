@@ -16,6 +16,7 @@ const validateJSONSchema = require('../helpers/validateJSONSchema');
 //json schema validation
 const jobPostSchema = require('../schemas/jobPostSchema.json');
 const jobPatchSchema = require('../schemas/jobPatchSchema.json');
+const applyJobSchema = require('../schemas/applyJobSchema.json');
 
 /** POST /jobs - add new job
  * input:{ _token, title, salary, equity, company_handle }
@@ -143,6 +144,15 @@ router.delete('/:id', ensureAdminUser, async (req, res, next) => {
 
 router.post('/:id/apply', ensureLoggedIn, async (req, res, next) => {
   try {
+    // if schema is invalid, throw error
+    validateJSONSchema(req.body, applyJobSchema);
+  } catch (err) {
+    return next(err);
+  }
+
+  removeToken();
+
+  try {
     const { id } = req.params;
     // check if job exists first, if not, throw error
     await Job.getJob(id);
@@ -156,9 +166,7 @@ router.post('/:id/apply', ensureLoggedIn, async (req, res, next) => {
     let error;
     if (err.message === 'Job not found.') {
       error = new APIError(err.message, 404);
-    } else if (
-      err.message === 'invalid input value for enum state: "crammed"'
-    ) {
+    } else if (err.message.includes('invalid input value for enum state')) {
       error = new APIError('Invalid state. Check your input.', 422);
     } else {
       error = Error('Server error occured.');

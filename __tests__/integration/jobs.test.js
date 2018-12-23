@@ -360,6 +360,16 @@ describe('POST /jobs/:id/apply', () => {
     expect(error.status).toBe(404);
     expect(error).toHaveProperty('message', 'Job not found.');
   });
+
+  it('Failed due to invalid parameter passed', async () => {
+    const response = await request(app)
+      .post(`/jobs/0/apply`)
+      .send({ _token: bobToken, statement: 'interested' });
+
+    const { error } = response.body;
+    expect(error.status).toBe(400);
+    expect(error).toHaveProperty('message');
+  });
 });
 
 afterEach(async function() {
