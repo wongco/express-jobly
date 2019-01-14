@@ -47,7 +47,21 @@ You will need to have the following items installed in order to run this program
    node server.js
    ```
 
-3. Install the postgresql schema tables onto your database.
+3. Create database instances
+
+	- Creating production database
+	
+	```
+	createdb jobly
+	```
+
+	- (Optional) Only for running tests
+	
+	```
+	createdb jobly-test
+	```
+
+4. Install the postgresql schema tables onto your database.
 
 	For production database:
 	```
